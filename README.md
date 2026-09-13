@@ -25,29 +25,50 @@ Card catalog updates are a separate scrape step, not a runtime API call. The off
 
 ## Repository layout
 
-This is the intended layout as the app is built out:
-
 ```text
 .
 ├── public/
 │   ├── cards/                 # Official card art downloaded by the scrape script
 │   └── icons/                 # PWA install icons
 ├── src/
-│   ├── components/            # Card picker, deck row, folder list
+│   ├── components/
 │   ├── data/                  # Processed card catalog (cards.json)
-│   ├── lib/                   # Local storage, backup import/export, share-link parse
-│   ├── pages/                 # Home, deck editor
+│   ├── lib/                   # Catalog, storage, backup, share-link parse
+│   ├── pages/
 │   ├── App.tsx
 │   └── main.tsx
 ├── scripts/
 │   └── scrape-cards.ts        # Re-fetch cards and images after a game update
-├── .github/workflows/         # Build and deploy dist/ to GitHub Pages
+├── .github/workflows/         # Test, build, and deploy dist/ to GitHub Pages
 ├── index.html
 ├── vite.config.ts
 └── package.json
 ```
 
 User decks and folders stay in the browser. `src/data/` and `public/cards/` are the shared game catalog, refreshed only when the scrape script is run.
+
+## Local development
+
+Needs Node 20+. Copy `.env.example` to `.env` and add a Clash Royale developer token only if you are refreshing the catalog.
+
+```bash
+npm install
+npm run dev
+```
+
+The app is at `http://localhost:5173`. Decks are stored in this browser's local storage.
+
+```bash
+npm test               # unit tests (no live API calls)
+npm run build          # production bundle in dist/
+npm run scrape-cards   # refresh src/data/cards.json and public/cards/
+```
+
+`scrape-cards` calls the official API with `CLASH_ROYALE_API_TOKEN` from `.env`, then joins Clash Strategic stats for card type and tower troops. Existing portraits are skipped unless you pass `--force`.
+
+## GitHub Pages
+
+The workflow in `.github/workflows/deploy.yml` runs tests, builds, and publishes `dist/`. In the GitHub repo: **Settings → Pages → Source → GitHub Actions**. The build sets `BASE_PATH` to `/<repo-name>/`, which matches a project site at `https://<user>.github.io/<repo-name>/`.
 
 ## Card data and images
 
@@ -59,7 +80,13 @@ Two sources cover what this app needs: official IDs and art for share links, plu
 - Endpoint: `GET https://api.clashroyale.com/v1/cards`
 - Images: each card’s `iconUrls.medium` on Supercell’s CDN, `https://api-assets.clashroyale.com/cards/300/...`
 
-This is the list that updates with the game. It provides the numeric card IDs used in deck share links (`https://link.clashroyale.com/deck/en?deck=id1;id2;...`) and the official card portraits.
+This is the list that updates with the game. It provides the numeric card IDs used in deck share links and the official card portraits.
+
+The typical in-game share link wraps a `copyDeck` deep link:
+
+`https://link.clashroyale.com/en?clashroyale://copyDeck?deck=id1;id2;...&slots=...&tt=...&id=...`
+
+A simpler HTTP form also exists: `https://link.clashroyale.com/deck/en?deck=id1;id2;...`
 
 A developer token is required and is locked to specific IPs, so this is only used by `scripts/scrape-cards.ts`. After a balance patch or new card, run that script: it pulls `/cards`, writes the catalog into `src/data/`, and downloads each portrait into `public/cards/`.
 

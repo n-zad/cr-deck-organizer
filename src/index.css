@@ -1,0 +1,53 @@
+@import "tailwindcss";
+
+@theme {
+  --font-sans: "Outfit", ui-sans-serif, system-ui, sans-serif;
+  --color-navy-950: #070b14;
+  --color-navy-900: #0c1220;
+  --color-navy-850: #10182a;
+  --color-navy-800: #161f33;
+  --color-navy-700: #1e2942;
+  --color-navy-600: #2b3856;
+  --color-navy-500: #3d4d70;
+  --color-cream-50: #f7f3ea;
+  --color-cream-200: #d9d0be;
+  --color-cream-400: #a89f8c;
+  --color-gold-300: #ecc97a;
+  --color-gold-400: #e0b34c;
+  --color-gold-500: #c9962f;
+  --color-rarity-common: #9aa6b8;
+  --color-rarity-rare: #5dade2;
+  --color-rarity-epic: #c39bd3;
+  --color-rarity-legendary: #e0b34c;
+  --color-rarity-champion: #e67e4a;
+}
+
+html {
+  color-scheme: dark;
+}
+
+body {
+  margin: 0;
+  min-height: 100dvh;
+  font-family: var(--font-sans);
+  background:
+    radial-gradient(1200px 500px at 10% -10%, rgb(224 179 76 / 0.08), transparent 50%),
+    radial-gradient(900px 400px at 100% 0%, rgb(93 173 226 / 0.06), transparent 45%),
+    var(--color-navy-950);
+  color: var(--color-cream-50);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+#root {
+  min-height: 100dvh;
+}
+
+button,
+[role="button"] {
+  cursor: pointer;
+}
+
+::selection {
+  background: rgb(224 179 76 / 0.35);
+}
