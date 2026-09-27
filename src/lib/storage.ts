@@ -1,3 +1,4 @@
+import { defaultSettings, parseSettings } from './settings.ts';
 import {
   APP_SCHEMA_VERSION,
   STORAGE_KEY,
@@ -5,13 +6,20 @@ import {
   type Deck,
   type Folder,
 } from './types.ts';
-import { createDeck, createFolder, normalizeCardSlots, normalizeEvolutionSlots } from './deck.ts';
+import {
+  createDeck,
+  createFolder,
+  normalizeCardSlots,
+  normalizeEvolutionSlots,
+  normalizeHeroSlots,
+} from './deck.ts';
 
 export function emptyState(): AppState {
   return {
     schemaVersion: APP_SCHEMA_VERSION,
     folders: [],
     decks: [],
+    settings: defaultSettings(),
   };
 }
 
@@ -45,6 +53,7 @@ export function parseState(value: unknown): AppState {
     decks: uniqueById(decks).map((deck) =>
       deck.folderId && !folderIds.has(deck.folderId) ? { ...deck, folderId: null } : deck,
     ),
+    settings: parseSettings(value.settings),
   };
 }
 
@@ -69,6 +78,9 @@ function parseDeck(value: unknown): Deck | null {
     cardIds: cardIds ? normalizeCardSlots(cardIds) : undefined,
     evolutionSlots: Array.isArray(value.evolutionSlots)
       ? normalizeEvolutionSlots(value.evolutionSlots as boolean[], cardIds)
+      : undefined,
+    heroSlots: Array.isArray(value.heroSlots)
+      ? normalizeHeroSlots(value.heroSlots as boolean[], cardIds)
       : undefined,
     towerTroopId: typeof value.towerTroopId === 'number' ? value.towerTroopId : null,
     folderId: typeof value.folderId === 'string' ? value.folderId : null,

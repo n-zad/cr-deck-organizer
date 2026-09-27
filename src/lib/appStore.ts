@@ -1,17 +1,32 @@
 import { getCard } from './catalog.ts';
 import { clampName, createId, nowIso } from './ids.ts';
 import {
+  canToggleForms,
   createDeck,
   createFolder,
+  emptyHeroSlots,
+  filledCardIds,
   firstEmptySlot,
-  isCompleteDeck,
+  fitDeckForms,
   normalizeEvolutionSlots,
+  shareBlockReason,
+  swapDeckSlots,
   toggleEvolution,
+  toggleHero,
   withUpdatedTimestamp,
 } from './deck.ts';
 import { parseShareLink } from './shareLink.ts';
 import { emptyState, loadState, saveState } from './storage.ts';
-import { UNTITLED_DECK_NAME, err, ok, type AppState, type Deck, type Folder, type Result } from './types.ts';
+import {
+  UNTITLED_DECK_NAME,
+  err,
+  ok,
+  type AppState,
+  type Deck,
+  type Folder,
+  type Result,
+  type UserSettings,
+} from './types.ts';
 
 export type AppStore = {
   getState: () => AppState;
@@ -27,6 +42,10 @@ export type AppStore = {
   setDeckSlot: (deck: Deck, slotIndex: number, cardId: number | null) => Deck;
   addCardToDeck: (deck: Deck, cardId: number, preferredSlot?: number | null) => Deck;
   toggleDeckEvolution: (deck: Deck, slotIndex: number) => Deck;
+  toggleDeckHero: (deck: Deck, slotIndex: number) => Deck;
+  swapDeckSlots: (deck: Deck, from: number, to: number) => Deck;
+  updateSettings: (patch: Partial<UserSettings>) => void;
+  pruneEmptyDecks: () => void;
 };
 
 export function createAppStore(storage: Storage): AppStore {
@@ -58,7 +77,13 @@ export function createAppStore(storage: Storage): AppStore {
       if (cardId == null) return false;
       return enabled && getCard(cardId)?.hasEvolution === true;
     });
-    return withUpdatedTimestamp({ ...deck, cardIds, evolutionSlots });
+    const currentHeroSlots = deck.heroSlots ?? emptyHeroSlots();
+    const heroSlots = currentHeroSlots.map((enabled, index) => {
+      if (index !== slotIndex) return enabled;
+      if (cardId == null) return false;
+      return enabled && getCard(cardId)?.hasHero === true;
+    });
+    return fitDeckForms(withUpdatedTimestamp({ ...deck, cardIds, evolutionSlots, heroSlots }));
   }
 
   function addCardToDeck(deck: Deck, cardId: number, preferredSlot: number | null = null): Deck {
@@ -82,12 +107,15 @@ export function createAppStore(storage: Storage): AppStore {
       parsed.value.cardIds,
     ).map((enabled, index) => enabled && getCard(parsed.value.cardIds[index])?.hasEvolution === true);
     return ok(
-      withUpdatedTimestamp({
-        ...deck,
-        cardIds: parsed.value.cardIds,
-        evolutionSlots,
-        towerTroopId: parsed.value.towerTroopId,
-      }),
+      fitDeckForms(
+        withUpdatedTimestamp({
+          ...deck,
+          cardIds: parsed.value.cardIds,
+          evolutionSlots,
+          heroSlots: emptyHeroSlots(),
+          towerTroopId: parsed.value.towerTroopId,
+        }),
+      ),
     );
   }
 
@@ -158,25 +186,73 @@ export function createAppStore(storage: Storage): AppStore {
     addCardToDeck,
     toggleDeckEvolution(deck, slotIndex) {
       const card = getCard(deck.cardIds[slotIndex]);
-      return withUpdatedTimestamp({
-        ...deck,
-        evolutionSlots: toggleEvolution(deck.evolutionSlots, slotIndex, card?.hasEvolution === true),
-      });
+      if (!canToggleForms(card, slotIndex)) return deck;
+      const evolutionSlots = toggleEvolution(deck.evolutionSlots, slotIndex, true);
+      const turningOn = !deck.evolutionSlots[slotIndex] && evolutionSlots[slotIndex];
+      return fitDeckForms(
+        withUpdatedTimestamp({
+          ...deck,
+          evolutionSlots,
+          heroSlots: turningOn
+            ? (deck.heroSlots ?? emptyHeroSlots()).map((enabled, index) =>
+                index === slotIndex ? false : enabled,
+              )
+            : (deck.heroSlots ?? emptyHeroSlots()),
+        }),
+      );
+    },
+    toggleDeckHero(deck, slotIndex) {
+      const card = getCard(deck.cardIds[slotIndex]);
+      if (!canToggleForms(card, slotIndex)) return deck;
+      const currentHeroSlots = deck.heroSlots ?? emptyHeroSlots();
+      const heroSlots = toggleHero(currentHeroSlots, slotIndex, true);
+      const turningOn = !currentHeroSlots[slotIndex] && heroSlots[slotIndex];
+      return fitDeckForms(
+        withUpdatedTimestamp({
+          ...deck,
+          heroSlots,
+          evolutionSlots: turningOn
+            ? deck.evolutionSlots.map((enabled, index) => (index === slotIndex ? false : enabled))
+            : deck.evolutionSlots,
+        }),
+      );
+    },
+    swapDeckSlots(deck, from, to) {
+      return fitDeckForms(swapDeckSlots(deck, from, to));
+    },
+    updateSettings(patch) {
+      update((current) => ({
+        ...current,
+        settings: { ...current.settings, ...patch },
+      }));
+    },
+    pruneEmptyDecks() {
+      if (!state.decks.some((deck) => filledCardIds(deck.cardIds).length === 0)) return;
+      update((current) => ({
+        ...current,
+        decks: current.decks.filter((deck) => filledCardIds(deck.cardIds).length > 0),
+      }));
     },
   };
 }
 
-export function newDraftDeck(folderId: string | null = null): Deck {
+export function newDraftDeck(
+  folderId: string | null = null,
+  towerTroopId: number | null = null,
+): Deck {
   return createDeck({
     id: createId(),
     folderId,
+    towerTroopId,
     createdAt: nowIso(),
     updatedAt: nowIso(),
   });
 }
 
 export function canShare(deck: Deck): boolean {
-  return isCompleteDeck(deck.cardIds);
+  return shareBlockReason(deck) == null;
 }
+
+export { shareBlockReason };
 
 export { emptyState };

@@ -1,19 +1,26 @@
 import { describe, expect, it } from 'vitest';
 import { exportBackup, parseBackup, serializeBackup } from './backup.ts';
 import { createDeck, createFolder } from './deck.ts';
+import { defaultSettings } from './settings.ts';
 import { BACKUP_APP_ID } from './types.ts';
 
 describe('backup', () => {
   it('exports and restores a master backup', () => {
     const folder = createFolder('Cycle');
     const deck = createDeck({ name: 'Royal Giant', folderId: folder.id });
-    const state = { schemaVersion: 1 as const, folders: [folder], decks: [deck] };
+    const state = {
+      schemaVersion: 1 as const,
+      folders: [folder],
+      decks: [deck],
+      settings: defaultSettings(),
+    };
     const json = serializeBackup(state);
     const restored = parseBackup(json);
     expect(restored.ok).toBe(true);
     if (!restored.ok) return;
     expect(restored.value.folders[0]?.name).toBe('Cycle');
     expect(restored.value.decks[0]?.name).toBe('Royal Giant');
+    expect(restored.value.settings).toEqual(defaultSettings());
   });
 
   it('rejects non-json text', () => {
@@ -41,7 +48,10 @@ describe('backup', () => {
   });
 
   it('includes app metadata on export', () => {
-    const backup = exportBackup({ schemaVersion: 1, folders: [], decks: [] }, '2026-09-13T00:00:00.000Z');
+    const backup = exportBackup(
+      { schemaVersion: 1, folders: [], decks: [], settings: defaultSettings() },
+      '2026-09-13T00:00:00.000Z',
+    );
     expect(backup.app).toBe(BACKUP_APP_ID);
     expect(backup.exportedAt).toBe('2026-09-13T00:00:00.000Z');
   });

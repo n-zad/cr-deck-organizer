@@ -15,11 +15,13 @@
   --color-gold-300: #ecc97a;
   --color-gold-400: #e0b34c;
   --color-gold-500: #c9962f;
-  --color-rarity-common: #9aa6b8;
-  --color-rarity-rare: #5dade2;
-  --color-rarity-epic: #c39bd3;
-  --color-rarity-legendary: #e0b34c;
-  --color-rarity-champion: #e67e4a;
+  --color-rarity-common: #e6f0ff;
+  --color-rarity-rare: #ff8c32;
+  --color-rarity-epic: #a855f7;
+  --color-rarity-legendary: #2dd4bf;
+  --color-rarity-champion: #f0b429;
+  --color-evo: #d946ef;
+  --color-hero: #ffd54a;
 }
 
 html {
@@ -41,6 +43,15 @@ body {
 
 #root {
   min-height: 100dvh;
+}
+
+select.select-field {
+  appearance: none;
+  background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'><path fill='%23d9d0be' d='M4.2 6.2 8 10l3.8-3.8'/></svg>");
+  background-repeat: no-repeat;
+  background-position: right 1rem center;
+  background-size: 14px;
+  padding-right: 2.5rem;
 }
 
 button,

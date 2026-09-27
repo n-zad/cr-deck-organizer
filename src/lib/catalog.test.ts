@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { catalog, getCard, getTowerTroop } from './catalog.ts';
+import { catalog, getCard, getTowerTroop, isChampionCard, isHeroCard } from './catalog.ts';
 
 describe('catalog', () => {
   it('ships a full official snapshot', () => {
@@ -13,6 +13,20 @@ describe('catalog', () => {
     expect(knight?.type).toBe('troop');
     expect(knight?.elixir).toBe(3);
     expect(knight?.hasEvolution).toBe(true);
+    expect(knight?.hasHero).toBe(true);
+    expect(isHeroCard(knight!)).toBe(true);
+    expect(isChampionCard(knight!)).toBe(false);
+
+    const iceWizard = getCard(26000023);
+    expect(iceWizard?.name).toBe('Ice Wizard');
+    expect(iceWizard?.hasHero).toBe(true);
+    expect(iceWizard?.hasEvolution).toBe(false);
+
+    const queen = getCard(26000072);
+    expect(queen?.name).toBe('Archer Queen');
+    expect(queen?.hasHero).toBe(false);
+    expect(isHeroCard(queen!)).toBe(false);
+    expect(isChampionCard(queen!)).toBe(true);
 
     const inferno = getCard(27000003);
     expect(inferno?.name).toBe('Inferno Tower');

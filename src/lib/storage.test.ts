@@ -17,11 +17,26 @@ describe('storage', () => {
       folderId: folder.id,
       cardIds: [1, 2, 3, 4, 5, 6, 7, 8],
     });
-    saveState({ schemaVersion: 1, folders: [folder], decks: [deck] }, storage);
+    saveState(
+      {
+        schemaVersion: 1,
+        folders: [folder],
+        decks: [deck],
+        settings: {
+          hideDeckNames: true,
+          ignoreFolders: false,
+          defaultTowerTroopId: 159000000,
+          autoDeleteEmptyDecks: false,
+        },
+      },
+      storage,
+    );
     const loaded = loadState(storage);
     expect(loaded.folders).toEqual([folder]);
     expect(loaded.decks[0]?.name).toBe('Hog 2.6');
     expect(loaded.decks[0]?.cardIds).toEqual([1, 2, 3, 4, 5, 6, 7, 8]);
+    expect(loaded.settings.hideDeckNames).toBe(true);
+    expect(loaded.settings.defaultTowerTroopId).toBe(159000000);
     expect(storage.getItem(STORAGE_KEY)).toContain('Hog 2.6');
   });
 

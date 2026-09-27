@@ -8,6 +8,7 @@
 
 import { access, mkdir, writeFile } from 'node:fs/promises';
 import path from 'node:path';
+import { heroHasEvolution, isHeroName } from '../src/lib/heroes.ts';
 import {
   CATALOG_SCHEMA_VERSION,
   CARD_RARITIES,
@@ -199,13 +200,17 @@ async function main(): Promise<void> {
       }
 
       const extra = strategicById.get(card.id);
+      const hasHero = isHeroName(card.name);
       return {
         id: card.id,
         name: card.name,
         elixir: typeof card.elixirCost === 'number' ? card.elixirCost : null,
         rarity: asRarity(card.rarity ?? extra?.rarity),
         type: asCardType(extra?.type, card.id),
-        hasEvolution: (card.maxEvolutionLevel ?? 0) > 0 || extra?.evolution === true,
+        hasEvolution: hasHero
+          ? heroHasEvolution(card.name)
+          : (card.maxEvolutionLevel ?? 0) > 0 || extra?.evolution === true,
+        hasHero,
         image: `cards/${imageName}`,
       };
     },

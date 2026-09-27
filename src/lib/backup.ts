@@ -16,6 +16,7 @@ export function exportBackup(state: AppState, exportedAt = new Date().toISOStrin
     exportedAt,
     folders: state.folders,
     decks: state.decks,
+    settings: state.settings,
   };
 }
 
@@ -46,6 +47,7 @@ export function parseBackup(raw: string): Result<AppState> {
     schemaVersion: APP_SCHEMA_VERSION,
     folders: parsed.folders,
     decks: parsed.decks,
+    settings: parsed.settings,
   });
   if (state.decks.length === 0 && state.folders.length === 0 && !Array.isArray(parsed.decks)) {
     return err('That backup does not contain any decks or folders.');

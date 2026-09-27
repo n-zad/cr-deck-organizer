@@ -40,10 +40,14 @@ export function useHashRoute(): string {
 export type Route =
   | { name: 'home' }
   | { name: 'new' }
+  | { name: 'settings' }
+  | { name: 'folders' }
   | { name: 'deck'; id: string };
 
 export function parseRoute(path: string): Route {
   if (path === '/new') return { name: 'new' };
+  if (path === '/settings') return { name: 'settings' };
+  if (path === '/folders') return { name: 'folders' };
   const match = path.match(/^\/deck\/([^/]+)$/);
   if (match) return { name: 'deck', id: decodeURIComponent(match[1]) };
   return { name: 'home' };

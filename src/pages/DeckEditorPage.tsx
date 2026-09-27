@@ -3,11 +3,11 @@ import { CardPicker } from '../components/CardPicker.tsx';
 import { DeckSlots } from '../components/DeckSlots.tsx';
 import { Modal } from '../components/Modal.tsx';
 import { ShareLinkField } from '../components/ShareLinkField.tsx';
-import { Button, IconBack, IconCopy, IconTrash } from '../components/ui.tsx';
+import { Button, IconBack, IconCopy, IconPlus, IconTrash } from '../components/ui.tsx';
 import { catalog, getCard } from '../lib/catalog.ts';
-import { filledCardIds } from '../lib/deck.ts';
+import { filledCardIds, fitDeckForms, shareBlockReason } from '../lib/deck.ts';
 import { navigate } from '../lib/hashRoute.ts';
-import { canShare, newDraftDeck } from '../lib/appStore.ts';
+import { newDraftDeck } from '../lib/appStore.ts';
 import { serializeShareLink } from '../lib/shareLink.ts';
 import { UNTITLED_DECK_NAME, type CatalogCard, type Deck } from '../lib/types.ts';
 import { store, useAppState } from '../useAppState.ts';
@@ -18,12 +18,21 @@ type DeckEditorPageProps = {
 
 export function DeckEditorPage({ deckId }: DeckEditorPageProps) {
   const state = useAppState();
-  const [deck, setDeck] = useState<Deck>(() => findDeck(deckId) ?? newDraftDeck());
+  const [deck, setDeck] = useState<Deck>(() =>
+    fitDeckForms(
+      findDeck(deckId) ?? newDraftDeck(null, store.getState().settings.defaultTowerTroopId),
+    ),
+  );
+  const [newFolderOpen, setNewFolderOpen] = useState(false);
+  const [newFolderName, setNewFolderName] = useState('');
   const notFound = Boolean(deckId && deck.id !== deckId);
-  const [selectedSlot, setSelectedSlot] = useState<number | null>(null);
+  const [selectedSlot, setSelectedSlot] = useState<number | null>(0);
   const [confirmDelete, setConfirmDelete] = useState(false);
-  const [copyState, setCopyState] = useState<'idle' | 'copied' | 'error'>('idle');
+  const [copyState, setCopyState] = useState<'idle' | 'copied' | 'error' | 'blocked'>('idle');
+  const [copyMessage, setCopyMessage] = useState<string | null>(null);
   const [savedFlash, setSavedFlash] = useState(false);
+  const showName = !state.settings.hideDeckNames;
+  const showFolder = !state.settings.ignoreFolders;
 
   useEffect(() => {
     if (notFound) return;
@@ -71,12 +80,21 @@ export function DeckEditorPage({ deckId }: DeckEditorPageProps) {
     const result = store.applyShareLink(deck, pasted);
     if (!result.ok) return result.error;
     setDeck(result.value);
-    setSelectedSlot(null);
+    setSelectedSlot(0);
     return null;
   }
 
   async function copyLink(): Promise<void> {
-    if (!canShare(deck)) return;
+    const blocked = shareBlockReason(deck);
+    if (blocked) {
+      setCopyState('blocked');
+      setCopyMessage(blocked);
+      window.setTimeout(() => {
+        setCopyState('idle');
+        setCopyMessage(null);
+      }, 2800);
+      return;
+    }
     const url = serializeShareLink({
       cardIds: filledCardIds(deck.cardIds),
       evolutionSlots: deck.evolutionSlots,
@@ -85,10 +103,15 @@ export function DeckEditorPage({ deckId }: DeckEditorPageProps) {
     try {
       await navigator.clipboard.writeText(url);
       setCopyState('copied');
+      setCopyMessage(null);
     } catch {
       setCopyState('error');
+      setCopyMessage('Could not copy the share link.');
     }
-    window.setTimeout(() => setCopyState('idle'), 1500);
+    window.setTimeout(() => {
+      setCopyState('idle');
+      setCopyMessage(null);
+    }, 1500);
   }
 
   if (notFound) {
@@ -104,7 +127,14 @@ export function DeckEditorPage({ deckId }: DeckEditorPageProps) {
   }
 
   return (
-    <div className="mx-auto flex max-w-6xl flex-col gap-5 px-4 py-6 sm:px-6">
+    <div
+      className="mx-auto flex max-w-6xl flex-col gap-5 px-4 py-6 sm:px-6"
+      onClick={(event) => {
+        const target = event.target as HTMLElement;
+        if (target.closest('[data-deck-slots]') || target.closest('[data-card-pick]')) return;
+        setSelectedSlot(null);
+      }}
+    >
       <div className="flex flex-wrap items-center gap-3">
         <Button variant="ghost" onClick={() => navigate('/')}>
           <IconBack />
@@ -113,47 +143,83 @@ export function DeckEditorPage({ deckId }: DeckEditorPageProps) {
         <span className="text-xs text-cream-400">
           {savedFlash ? 'Saved' : 'Auto-saves in this browser'}
         </span>
-        <div className="ml-auto flex flex-wrap gap-2">
-          <Button variant="ghost" disabled={!canShare(deck)} onClick={() => void copyLink()}>
-            <IconCopy />
-            {copyState === 'copied' ? 'Copied' : copyState === 'error' ? 'Copy failed' : 'Copy share link'}
-          </Button>
-          <Button variant="danger" onClick={() => setConfirmDelete(true)}>
-            <IconTrash />
-            Delete
-          </Button>
+        <div className="ml-auto flex flex-col items-end gap-1">
+          <div className="flex flex-wrap justify-end gap-2">
+            <Button variant="gold" onClick={() => void copyLink()}>
+              <IconCopy />
+              {copyState === 'copied'
+                ? 'Copied'
+                : copyState === 'error'
+                  ? 'Copy failed'
+                  : copyState === 'blocked'
+                    ? 'Cannot copy'
+                    : 'Copy share link'}
+            </Button>
+            <Button variant="danger" onClick={() => setConfirmDelete(true)}>
+              <IconTrash />
+              Delete
+            </Button>
+          </div>
+          {copyMessage && (
+            <p className="max-w-xs text-right text-xs text-amber-300">{copyMessage}</p>
+          )}
         </div>
       </div>
 
-      <div className="grid gap-3 md:grid-cols-[minmax(0,1fr)_200px_220px]">
-        <label className="block">
-          <span className="mb-1 block text-xs font-semibold tracking-wide text-cream-400 uppercase">
-            Name
-          </span>
-          <input
-            value={deck.name}
-            onChange={(event) => setDeck({ ...deck, name: event.target.value })}
-            className="w-full rounded-2xl border border-white/10 bg-navy-800 px-4 py-3 text-lg font-medium outline-none focus:border-gold-400/50"
-          />
-        </label>
-        <label className="block">
-          <span className="mb-1 block text-xs font-semibold tracking-wide text-cream-400 uppercase">
-            Folder
-          </span>
-          <select
-            value={deck.folderId ?? ''}
-            onChange={(event) => setDeck({ ...deck, folderId: event.target.value || null })}
-            className="w-full rounded-2xl border border-white/10 bg-navy-800 px-3 py-3 text-sm outline-none focus:border-gold-400/50"
+      <div className="flex flex-col gap-3">
+        {(showName || showFolder) && (
+          <div
+            className={`grid gap-3 ${
+              showName && showFolder ? 'md:grid-cols-[minmax(0,1fr)_240px]' : ''
+            }`}
           >
-            <option value="">Unfiled</option>
-            {folders.map((folder) => (
-              <option key={folder.id} value={folder.id}>
-                {folder.name}
-              </option>
-            ))}
-          </select>
-        </label>
-        <label className="block">
+            {showName && (
+              <label className="block">
+                <span className="mb-1 block text-xs font-semibold tracking-wide text-cream-400 uppercase">
+                  Name
+                </span>
+                <input
+                  value={deck.name}
+                  onChange={(event) => setDeck({ ...deck, name: event.target.value })}
+                  className="w-full rounded-2xl border border-white/10 bg-navy-800 px-4 py-3 text-lg font-medium outline-none focus:border-gold-400/50"
+                />
+              </label>
+            )}
+            {showFolder && (
+              <div className="block">
+                <span className="mb-1 block text-xs font-semibold tracking-wide text-cream-400 uppercase">
+                  Folder
+                </span>
+                <div className="flex gap-2">
+                  <select
+                    value={deck.folderId ?? ''}
+                    onChange={(event) => setDeck({ ...deck, folderId: event.target.value || null })}
+                    className="select-field min-w-0 flex-1 rounded-2xl border border-white/10 bg-navy-800 px-3 py-3 text-sm outline-none focus:border-gold-400/50"
+                  >
+                    <option value="">Unfiled</option>
+                    {folders.map((folder) => (
+                      <option key={folder.id} value={folder.id}>
+                        {folder.name}
+                      </option>
+                    ))}
+                  </select>
+                  <Button
+                    variant="ghost"
+                    className="px-3"
+                    title="Create folder"
+                    onClick={() => setNewFolderOpen(true)}
+                  >
+                    <IconPlus />
+                  </Button>
+                </div>
+              </div>
+            )}
+          </div>
+        )}
+
+        <ShareLinkField onApply={applyLink} />
+
+        <label className="block max-w-xs">
           <span className="mb-1 block text-xs font-semibold tracking-wide text-cream-400 uppercase">
             Tower troop
           </span>
@@ -165,7 +231,7 @@ export function DeckEditorPage({ deckId }: DeckEditorPageProps) {
                 towerTroopId: event.target.value ? Number(event.target.value) : null,
               })
             }
-            className="w-full rounded-2xl border border-white/10 bg-navy-800 px-3 py-3 text-sm outline-none focus:border-gold-400/50"
+            className="select-field w-full rounded-2xl border border-white/10 bg-navy-800 px-3 py-3 text-sm outline-none focus:border-gold-400/50"
           >
             <option value="">None</option>
             {catalog.towerTroops.map((troop) => (
@@ -189,10 +255,47 @@ export function DeckEditorPage({ deckId }: DeckEditorPageProps) {
           if (!card?.hasEvolution) return;
           setDeck(store.toggleDeckEvolution(deck, index));
         }}
+        onToggleHero={(index) => {
+          const card = getCard(deck.cardIds[index]);
+          if (!card?.hasHero) return;
+          setDeck(store.toggleDeckHero(deck, index));
+        }}
+        onSwapSlots={(from, to) => {
+          setDeck(store.swapDeckSlots(deck, from, to));
+        }}
       />
 
-      <ShareLinkField onApply={applyLink} />
       <CardPicker selectedIds={deck.cardIds} onPick={placeCard} />
+
+      {newFolderOpen && (
+        <Modal
+          title="New folder"
+          confirmLabel="Create folder"
+          onCancel={() => {
+            setNewFolderOpen(false);
+            setNewFolderName('');
+          }}
+          onConfirm={() => {
+            const name = newFolderName.trim();
+            if (!name) return;
+            const folder = store.createFolder(name);
+            setDeck({ ...deck, folderId: folder.id });
+            setNewFolderOpen(false);
+            setNewFolderName('');
+          }}
+        >
+          <label className="block">
+            <span className="sr-only">Folder name</span>
+            <input
+              value={newFolderName}
+              onChange={(event) => setNewFolderName(event.target.value)}
+              placeholder="Folder name"
+              autoFocus
+              className="w-full rounded-2xl border border-white/10 bg-navy-900 px-3 py-2.5 text-sm outline-none focus:border-gold-400/50"
+            />
+          </label>
+        </Modal>
+      )}
 
       {confirmDelete && (
         <Modal

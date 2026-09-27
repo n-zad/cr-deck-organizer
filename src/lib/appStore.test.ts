@@ -3,6 +3,7 @@ import { createAppStore, newDraftDeck } from './appStore.ts';
 import { createFolder } from './deck.ts';
 import { MemoryStorage } from './memoryStorage.ts';
 import { getCard } from './catalog.ts';
+import { defaultSettings } from './settings.ts';
 
 const LOG_BAIT_LINK =
   'https://link.clashroyale.com/en?clashroyale://copyDeck?deck=28000004;26000000;26000026;27000003;26000041;26000030;28000011;28000003&slots=0;0;0;0;0;0;0;0&tt=159000000&id=YGJUVURY';
@@ -47,9 +48,47 @@ describe('appStore', () => {
       schemaVersion: 1,
       folders: [createFolder('Saved')],
       decks: [newDraftDeck()],
+      settings: defaultSettings(),
     });
     const second = createAppStore(storage);
     expect(second.getState().folders[0]?.name).toBe('Saved');
     expect(second.getState().decks).toHaveLength(1);
+  });
+
+  it('updates settings and prunes decks that have no cards', () => {
+    const store = createAppStore(new MemoryStorage());
+    store.saveDeck(newDraftDeck());
+    store.saveDeck(store.addCardToDeck(newDraftDeck(), 26000000));
+    expect(store.getState().decks).toHaveLength(2);
+    store.updateSettings({ autoDeleteEmptyDecks: true });
+    expect(store.getState().settings.autoDeleteEmptyDecks).toBe(true);
+    store.pruneEmptyDecks();
+    expect(store.getState().decks).toHaveLength(1);
+    expect(store.getState().decks[0]?.cardIds[0]).toBe(26000000);
+  });
+
+  it('auto-fits forms and only toggles dual-form cards in the wild slot', () => {
+    const store = createAppStore(new MemoryStorage());
+    const knight = 26000000;
+    let deck = store.setDeckSlot(newDraftDeck(), 0, knight);
+    expect(deck.evolutionSlots[0]).toBe(true);
+    expect(deck.heroSlots[0]).toBe(false);
+    deck = store.toggleDeckHero(deck, 0);
+    expect(deck.heroSlots[0]).toBe(false);
+    expect(deck.evolutionSlots[0]).toBe(true);
+
+    deck = store.setDeckSlot(deck, 2, knight);
+    expect(deck.cardIds[0]).toBeNull();
+    expect(deck.evolutionSlots[2]).toBe(false);
+    deck = store.toggleDeckEvolution(deck, 2);
+    expect(deck.evolutionSlots[2]).toBe(true);
+    deck = store.toggleDeckHero(deck, 2);
+    expect(deck.heroSlots[2]).toBe(true);
+    expect(deck.evolutionSlots[2]).toBe(false);
+
+    const swapped = store.swapDeckSlots(deck, 2, 3);
+    expect(swapped.cardIds[3]).toBe(knight);
+    expect(swapped.heroSlots[3]).toBe(false);
+    expect(swapped.evolutionSlots[3]).toBe(false);
   });
 });

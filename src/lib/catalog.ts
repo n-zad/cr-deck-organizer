@@ -1,4 +1,6 @@
 import catalogJson from '../data/cards.json';
+import { arenaOrder } from './arenaOrder.ts';
+import { heroHasEvolution, isHeroName } from './heroes.ts';
 import {
   CATALOG_SCHEMA_VERSION,
   CARD_RARITIES,
@@ -37,6 +39,14 @@ export function assetUrl(relativePath: string): string {
   const base = import.meta.env.BASE_URL;
   const cleaned = relativePath.replace(/^\//, '');
   return `${base}${cleaned}`;
+}
+
+export function isHeroCard(card: Pick<CatalogCard, 'hasHero'>): boolean {
+  return card.hasHero;
+}
+
+export function isChampionCard(card: Pick<CatalogCard, 'rarity'>): boolean {
+  return card.rarity === 'champion';
 }
 
 function normalizeCatalog(value: unknown): Catalog {
@@ -84,13 +94,16 @@ function parseCard(value: unknown): CatalogCard | null {
   }
   const rarity = typeof value.rarity === 'string' ? value.rarity : 'common';
   const type = typeof value.type === 'string' ? value.type : 'troop';
+  const hasHero = value.hasHero === true || isHeroName(value.name);
   return {
     id: value.id,
     name: value.name,
     elixir: typeof value.elixir === 'number' ? value.elixir : null,
     rarity: isRarity(rarity) ? rarity : 'common',
     type: isType(type) ? type : 'troop',
-    hasEvolution: value.hasEvolution === true,
+    hasEvolution: hasHero ? heroHasEvolution(value.name) : value.hasEvolution === true,
+    hasHero,
+    arenaOrder: arenaOrder(value.id),
     image: value.image,
   };
 }

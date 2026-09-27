@@ -1,31 +1,45 @@
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { BackupBar } from '../components/BackupBar.tsx';
 import { DeckGrid } from '../components/DeckGrid.tsx';
 import { FolderSidebar, type FolderFilter } from '../components/FolderSidebar.tsx';
-import { Modal } from '../components/Modal.tsx';
-import { Button, IconPlus, IconSearch } from '../components/ui.tsx';
+import { Button, Chip, IconPlus, IconReverse, IconSearch, IconSettings } from '../components/ui.tsx';
+import { cardsFromIds } from '../lib/catalog.ts';
 import { navigate } from '../lib/hashRoute.ts';
 import { newDraftDeck } from '../lib/appStore.ts';
+import { sortDecks, type DeckSortKey } from '../lib/sort.ts';
 import { store, useAppState } from '../useAppState.ts';
+
+const DECK_SORTS: Array<{ id: DeckSortKey; label: string }> = [
+  { id: 'updated', label: 'Last edited' },
+  { id: 'name', label: 'A–Z' },
+  { id: 'elixir', label: 'Avg elixir' },
+];
 
 export function HomePage() {
   const state = useAppState();
   const [filter, setFilter] = useState<FolderFilter>('all');
   const [query, setQuery] = useState('');
-  const [pendingDelete, setPendingDelete] = useState<string | null>(null);
+  const [sortKey, setSortKey] = useState<DeckSortKey>('updated');
+  const [sortReverse, setSortReverse] = useState(false);
+
+  useEffect(() => {
+    if (state.settings.autoDeleteEmptyDecks) {
+      store.pruneEmptyDecks();
+    }
+  }, [state.settings.autoDeleteEmptyDecks]);
 
   const decks = useMemo(() => {
     const needle = query.trim().toLowerCase();
-    return state.decks
-      .filter((deck) => {
+    const filtered = state.decks.filter((deck) => {
+      if (!state.settings.ignoreFolders) {
         if (filter === 'unfiled' && deck.folderId != null) return false;
         if (filter !== 'all' && filter !== 'unfiled' && deck.folderId !== filter) return false;
-        if (needle && !deck.name.toLowerCase().includes(needle)) return false;
-        return true;
-      })
-      .slice()
-      .sort((a, b) => b.updatedAt.localeCompare(a.updatedAt));
-  }, [filter, query, state.decks]);
+      }
+      if (needle && !deck.name.toLowerCase().includes(needle)) return false;
+      return true;
+    });
+    return sortDecks(filtered, sortKey, sortReverse, (deck) => cardsFromIds(deck.cardIds));
+  }, [filter, query, sortKey, sortReverse, state.decks, state.settings.ignoreFolders]);
 
   const folders = useMemo(
     () => state.folders.slice().sort((a, b) => a.name.localeCompare(b.name)),
@@ -47,18 +61,28 @@ export function HomePage() {
             want a copy elsewhere. Nothing is uploaded.
           </p>
         </div>
-        <BackupBar state={state} onRestore={(next) => store.replaceState(next)} />
+        <div className="flex flex-wrap items-center gap-2">
+          <Button variant="ghost" onClick={() => navigate('/settings')}>
+            <IconSettings />
+            Settings
+          </Button>
+          <BackupBar state={state} onRestore={(next) => store.replaceState(next)} />
+        </div>
       </header>
 
-      <div className="grid gap-8 md:grid-cols-[13.5rem_minmax(0,1fr)]">
-        <FolderSidebar
-          folders={folders}
-          selected={filter}
-          onSelect={setFilter}
-          onCreate={(name) => store.createFolder(name)}
-          onRename={(id, name) => store.renameFolder(id, name)}
-          onDelete={(id) => setPendingDelete(id)}
-        />
+      <div
+        className={`grid gap-8 ${
+          state.settings.ignoreFolders ? '' : 'md:grid-cols-[13.5rem_minmax(0,1fr)]'
+        }`}
+      >
+        {!state.settings.ignoreFolders && (
+          <FolderSidebar
+            folders={folders}
+            selected={filter}
+            onSelect={setFilter}
+            onManage={() => navigate('/folders')}
+          />
+        )}
         <div className="flex flex-col gap-4">
           <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
             <label className="relative block min-w-0 flex-1">
@@ -76,8 +100,13 @@ export function HomePage() {
             <Button
               variant="gold"
               onClick={() => {
-                const folderId = filter === 'all' || filter === 'unfiled' ? null : filter;
-                const created = store.saveDeck(newDraftDeck(folderId));
+                const folderId =
+                  state.settings.ignoreFolders || filter === 'all' || filter === 'unfiled'
+                    ? null
+                    : filter;
+                const created = store.saveDeck(
+                  newDraftDeck(folderId, state.settings.defaultTowerTroopId),
+                );
                 navigate(`/deck/${created.id}`);
               }}
             >
@@ -85,9 +114,26 @@ export function HomePage() {
               New deck
             </Button>
           </div>
+          <div className="flex flex-wrap items-center gap-2">
+            {DECK_SORTS.map((item) => (
+              <Chip key={item.id} active={sortKey === item.id} onClick={() => setSortKey(item.id)}>
+                {item.label}
+              </Chip>
+            ))}
+            <Chip
+              active={sortReverse}
+              title={sortReverse ? 'Show original order' : 'Reverse order'}
+              onClick={() => setSortReverse((current) => !current)}
+            >
+              <IconReverse />
+              Reverse
+            </Chip>
+          </div>
           <DeckGrid
             decks={decks}
             folders={folders}
+            hideNames={state.settings.hideDeckNames}
+            hideFolders={state.settings.ignoreFolders}
             emptyTitle={query.trim() ? 'No matching decks' : 'No decks here yet'}
             emptyBody={
               query.trim()
@@ -98,21 +144,6 @@ export function HomePage() {
         </div>
       </div>
 
-      {pendingDelete && (
-        <Modal
-          title="Delete this folder?"
-          confirmLabel="Delete folder"
-          danger
-          onCancel={() => setPendingDelete(null)}
-          onConfirm={() => {
-            store.deleteFolder(pendingDelete);
-            if (filter === pendingDelete) setFilter('all');
-            setPendingDelete(null);
-          }}
-        >
-          Decks inside it stay in your library and move to Unfiled. Only the folder is removed.
-        </Modal>
-      )}
     </div>
   );
 }

@@ -2,6 +2,7 @@ export const CATALOG_SCHEMA_VERSION = 1;
 export const APP_SCHEMA_VERSION = 1;
 export const DECK_SIZE = 8;
 export const MAX_EVOLUTIONS = 2;
+export const MAX_HEROES = 2;
 export const STORAGE_KEY = 'cr-deck-organizer/state';
 export const BACKUP_APP_ID = 'cr-deck-organizer';
 export const UNTITLED_DECK_NAME = 'Untitled deck';
@@ -26,7 +27,16 @@ export type CatalogCard = {
   rarity: CardRarity;
   type: CardType;
   hasEvolution: boolean;
+  hasHero: boolean;
+  arenaOrder?: number;
   image: string;
+};
+
+export type UserSettings = {
+  hideDeckNames: boolean;
+  ignoreFolders: boolean;
+  defaultTowerTroopId: number | null;
+  autoDeleteEmptyDecks: boolean;
 };
 
 export type TowerTroop = {
@@ -57,6 +67,7 @@ export type Deck = {
   name: string;
   cardIds: Array<number | null>;
   evolutionSlots: boolean[];
+  heroSlots: boolean[];
   towerTroopId: number | null;
   folderId: string | null;
   createdAt: string;
@@ -67,6 +78,7 @@ export type AppState = {
   schemaVersion: typeof APP_SCHEMA_VERSION;
   folders: Folder[];
   decks: Deck[];
+  settings: UserSettings;
 };
 
 export type BackupFile = {
@@ -75,6 +87,7 @@ export type BackupFile = {
   exportedAt: string;
   folders: Folder[];
   decks: Deck[];
+  settings: UserSettings;
 };
 
 export type Result<T, E = string> =

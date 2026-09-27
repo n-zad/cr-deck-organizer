@@ -17,11 +17,14 @@ export function ShareLinkField({ onApply }: ShareLinkFieldProps) {
         event.preventDefault();
         const error = onApply(value);
         setOk(error == null);
-        setMessage(error ?? 'Deck loaded from the share link.');
+        setMessage(error ?? 'Imported the deck from that share link.');
         if (error == null) setValue('');
       }}
     >
-      <label className="mb-2 block text-sm font-semibold text-cream-200">Paste a share link</label>
+      <label className="mb-1 block text-sm font-semibold text-cream-200">Import a deck</label>
+      <p className="mb-2 text-xs text-cream-400">
+        Paste a Clash Royale share link to replace this deck&apos;s cards and tower troop.
+      </p>
       <div className="flex flex-col gap-2 sm:flex-row">
         <input
           value={value}
@@ -33,7 +36,7 @@ export function ShareLinkField({ onApply }: ShareLinkFieldProps) {
           className="min-w-0 flex-1 rounded-full border border-white/10 bg-navy-900 px-4 py-2.5 text-sm outline-none placeholder:text-cream-400/50 focus:border-gold-400/50"
         />
         <Button type="submit" variant="gold">
-          Apply
+          Import
         </Button>
       </div>
       {message && (

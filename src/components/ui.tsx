@@ -72,6 +72,52 @@ export function IconTrash() {
   );
 }
 
+export function IconSettings() {
+  return (
+    <svg viewBox="0 0 24 24" aria-hidden="true" className="h-4 w-4" fill="none" stroke="currentColor" strokeWidth="1.8">
+      <circle cx="12" cy="12" r="3" />
+      <path
+        d="M19.4 13.5a7.7 7.7 0 0 0 .1-1.5 7.7 7.7 0 0 0-.1-1.5l2-1.5-2-3.5-2.3.7a7.4 7.4 0 0 0-2.6-1.5L14 2h-4l-.5 2.7a7.4 7.4 0 0 0-2.6 1.5l-2.3-.7-2 3.5 2 1.5a7.7 7.7 0 0 0-.1 1.5 7.7 7.7 0 0 0 .1 1.5l-2 1.5 2 3.5 2.3-.7a7.4 7.4 0 0 0 2.6 1.5L10 22h4l.5-2.7a7.4 7.4 0 0 0 2.6-1.5l2.3.7 2-3.5z"
+        strokeLinejoin="round"
+      />
+    </svg>
+  );
+}
+
+export function IconReverse() {
+  return (
+    <svg viewBox="0 0 24 24" aria-hidden="true" className="h-4 w-4" fill="none" stroke="currentColor" strokeWidth="1.8">
+      <path d="M7 7h11M7 7l3-3M7 7l3 3" strokeLinecap="round" strokeLinejoin="round" />
+      <path d="M17 17H6M17 17l-3-3M17 17l-3 3" strokeLinecap="round" strokeLinejoin="round" />
+    </svg>
+  );
+}
+
+export function Chip({
+  active,
+  children,
+  onClick,
+  title,
+}: {
+  active: boolean;
+  children: ReactNode;
+  onClick: () => void;
+  title?: string;
+}) {
+  return (
+    <button
+      type="button"
+      title={title}
+      onClick={onClick}
+      className={`inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-xs font-medium transition ${
+        active ? 'bg-gold-400 text-navy-950' : 'bg-navy-900 text-cream-300 hover:bg-navy-700'
+      }`}
+    >
+      {children}
+    </button>
+  );
+}
+
 export function IconFolder() {
   return (
     <svg viewBox="0 0 24 24" aria-hidden="true" className="h-4 w-4" fill="none" stroke="currentColor" strokeWidth="1.8">
@@ -92,13 +138,13 @@ type ButtonProps = {
 
 const variants: Record<NonNullable<ButtonProps['variant']>, string> = {
   primary:
-    'bg-navy-700 text-cream-50 hover:bg-navy-600 border-white/10',
+    'bg-navy-700 text-cream-50 hover:bg-navy-600 border-white/10 disabled:opacity-40',
   ghost:
-    'bg-transparent text-cream-200 hover:bg-white/5 border-transparent',
+    'bg-transparent text-cream-200 hover:bg-white/5 border-transparent disabled:opacity-40',
   danger:
-    'bg-red-500/10 text-red-200 hover:bg-red-500/20 border-red-400/20',
+    'bg-red-500/10 text-red-200 hover:bg-red-500/20 border-red-400/20 disabled:opacity-40',
   gold:
-    'bg-gold-400 text-navy-950 hover:bg-gold-300 border-gold-400 font-semibold',
+    'bg-gold-400 text-navy-950 hover:bg-gold-300 border-gold-400 font-semibold disabled:opacity-80',
 };
 
 export function Button({
@@ -116,7 +162,7 @@ export function Button({
       title={title}
       disabled={disabled}
       onClick={onClick}
-      className={`inline-flex items-center justify-center gap-2 rounded-full border px-3.5 py-2 text-sm transition disabled:cursor-not-allowed disabled:opacity-40 ${variants[variant]} ${className}`}
+      className={`inline-flex items-center justify-center gap-2 rounded-full border px-3.5 py-2 text-sm transition disabled:cursor-not-allowed ${variants[variant]} ${className}`}
     >
       {children}
     </button>

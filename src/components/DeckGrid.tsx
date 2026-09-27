@@ -1,5 +1,11 @@
-import { averageElixir, filledCardIds, formatElixir } from '../lib/deck.ts';
-import { cardsFromIds, getTowerTroop } from '../lib/catalog.ts';
+import {
+  averageElixir,
+  cardFrame,
+  filledCardIds,
+  formatElixir,
+  isLegalFormSlot,
+} from '../lib/deck.ts';
+import { cardsFromIds, getTowerTroop, isChampionCard } from '../lib/catalog.ts';
 import { navigate } from '../lib/hashRoute.ts';
 import type { Deck, Folder } from '../lib/types.ts';
 import { CardPortrait } from './CardPortrait.tsx';
@@ -7,9 +13,11 @@ import { CardPortrait } from './CardPortrait.tsx';
 type DeckTileProps = {
   deck: Deck;
   folderName?: string;
+  hideName?: boolean;
+  hideFolder?: boolean;
 };
 
-export function DeckTile({ deck, folderName }: DeckTileProps) {
+export function DeckTile({ deck, folderName, hideName = false, hideFolder = false }: DeckTileProps) {
   const cards = cardsFromIds(deck.cardIds);
   const elixir = averageElixir(cards.filter(Boolean));
   const filled = filledCardIds(deck.cardIds).length;
@@ -21,26 +29,41 @@ export function DeckTile({ deck, folderName }: DeckTileProps) {
       onClick={() => navigate(`/deck/${deck.id}`)}
       className="group w-full rounded-2xl border border-white/8 bg-navy-800/80 p-3 text-left shadow-lg shadow-black/20 transition hover:border-gold-400/40 hover:bg-navy-700/80"
     >
-      <div className="mb-3 grid grid-cols-4 gap-1.5">
-        {deck.cardIds.map((_, index) => (
-          <CardPortrait
-            key={`${deck.id}-${index}`}
-            card={cards[index]}
-            size="xs"
-            showElixir={false}
-            evolved={deck.evolutionSlots[index] === true}
-          />
-        ))}
+      <div className="mb-3 grid grid-cols-4 justify-items-center gap-x-1 gap-y-1.5">
+        {deck.cardIds.map((_, index) => {
+          const card = cards[index];
+          const frame = card
+            ? cardFrame(
+                deck.evolutionSlots[index] === true,
+                deck.heroSlots?.[index] === true,
+                isChampionCard(card),
+              )
+            : 'none';
+          return (
+            <CardPortrait
+              key={`${deck.id}-${index}`}
+              card={card}
+              size="xs"
+              frame={frame}
+              neon={frame !== 'none' && isLegalFormSlot(index, frame)}
+            />
+          );
+        })}
       </div>
       <div className="flex items-start justify-between gap-3">
         <div className="min-w-0">
-          <h3 className="truncate font-semibold text-cream-50 group-hover:text-gold-300">
-            {deck.name}
-          </h3>
-          <p className="mt-0.5 text-xs text-cream-400">
-            {folderName ?? 'Unfiled'}
-            {tower ? ` · ${tower.name}` : ''}
-          </p>
+          {!hideName && (
+            <h3 className="truncate font-semibold text-cream-50 group-hover:text-gold-300">
+              {deck.name}
+            </h3>
+          )}
+          {(!hideFolder || tower) && (
+            <p className={`text-xs text-cream-400 ${hideName ? '' : 'mt-0.5'}`}>
+              {hideFolder ? '' : (folderName ?? 'Unfiled')}
+              {!hideFolder && tower ? ' · ' : ''}
+              {tower ? tower.name : ''}
+            </p>
+          )}
         </div>
         <div className="text-right text-xs text-cream-400">
           <div className="font-medium text-cream-200">{formatElixir(elixir)} elixir</div>
@@ -56,6 +79,8 @@ type DeckGridProps = {
   folders: Folder[];
   emptyTitle?: string;
   emptyBody?: string;
+  hideNames?: boolean;
+  hideFolders?: boolean;
 };
 
 export function DeckGrid({
@@ -63,6 +88,8 @@ export function DeckGrid({
   folders,
   emptyTitle = 'No decks here yet',
   emptyBody = 'Start a new deck or paste a Clash Royale share link.',
+  hideNames = false,
+  hideFolders = false,
 }: DeckGridProps) {
   const folderNames = new Map(folders.map((folder) => [folder.id, folder.name]));
   if (decks.length === 0) {
@@ -81,6 +108,8 @@ export function DeckGrid({
           key={deck.id}
           deck={deck}
           folderName={deck.folderId ? folderNames.get(deck.folderId) : undefined}
+          hideName={hideNames}
+          hideFolder={hideFolders}
         />
       ))}
     </div>
