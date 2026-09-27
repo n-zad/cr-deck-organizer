@@ -1,6 +1,8 @@
 import { useMemo, useState } from 'react';
 import { catalog } from '../lib/catalog.ts';
+import { cardPickerLayout } from '../lib/layout.ts';
 import { sortCards, type CardSortKey } from '../lib/sort.ts';
+import { useElementWidth } from '../lib/useElementWidth.ts';
 import type { CardRarity, CardType, CatalogCard } from '../lib/types.ts';
 import { CardPortrait } from './CardPortrait.tsx';
 import { Chip, IconReverse, IconSearch } from './ui.tsx';
@@ -37,6 +39,8 @@ export function CardPicker({ selectedIds, onPick }: CardPickerProps) {
   const [elixir, setElixir] = useState<number | 'unknown' | 'all'>('all');
   const [sortKey, setSortKey] = useState<CardSortKey>('elixir');
   const [sortReverse, setSortReverse] = useState(false);
+  const [gridRef, gridWidth] = useElementWidth<HTMLDivElement>();
+  const pickerLayout = cardPickerLayout(gridWidth);
   const selected = useMemo(
     () => new Set(selectedIds.filter((id): id is number => id != null)),
     [selectedIds],
@@ -58,7 +62,10 @@ export function CardPicker({ selectedIds, onPick }: CardPickerProps) {
   }, [elixir, query, rarity, sortKey, sortReverse, type]);
 
   return (
-    <section className="rounded-2xl border border-white/8 bg-navy-800/50 p-4">
+    <section
+      data-keep-selection
+      className="rounded-2xl border border-white/8 bg-navy-800/50 p-4"
+    >
       <div className="mb-4 flex flex-col gap-3">
         <label className="relative block">
           <span className="sr-only">Search cards</span>
@@ -120,8 +127,12 @@ export function CardPicker({ selectedIds, onPick }: CardPickerProps) {
         </div>
       </div>
       <div
-        data-card-pick
-        className="grid grid-cols-4 gap-2 pt-2 sm:grid-cols-6 md:grid-cols-8 lg:grid-cols-10"
+        ref={gridRef}
+        className="grid justify-items-center pt-2"
+        style={{
+          gridTemplateColumns: `repeat(${pickerLayout.columns}, minmax(0, 1fr))`,
+          gap: pickerLayout.gapPx,
+        }}
       >
         {cards.map((card) => (
           <CardPortrait

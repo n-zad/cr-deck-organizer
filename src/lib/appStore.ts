@@ -10,9 +10,8 @@ import {
   fitDeckForms,
   normalizeEvolutionSlots,
   shareBlockReason,
+  slotRole,
   swapDeckSlots,
-  toggleEvolution,
-  toggleHero,
   withUpdatedTimestamp,
 } from './deck.ts';
 import { parseShareLink } from './shareLink.ts';
@@ -72,16 +71,24 @@ export function createAppStore(storage: Storage): AppStore {
       }
     }
     cardIds[slotIndex] = cardId;
+    const placed = cardId != null ? getCard(cardId) : undefined;
+    const dualWild =
+      placed != null &&
+      slotRole(slotIndex) === 'wild' &&
+      placed.hasEvolution &&
+      placed.hasHero;
     const evolutionSlots = deck.evolutionSlots.map((enabled, index) => {
       if (index !== slotIndex) return enabled;
-      if (cardId == null) return false;
-      return enabled && getCard(cardId)?.hasEvolution === true;
+      if (!placed) return false;
+      if (dualWild) return true;
+      return enabled && placed.hasEvolution;
     });
     const currentHeroSlots = deck.heroSlots ?? emptyHeroSlots();
     const heroSlots = currentHeroSlots.map((enabled, index) => {
       if (index !== slotIndex) return enabled;
-      if (cardId == null) return false;
-      return enabled && getCard(cardId)?.hasHero === true;
+      if (!placed) return false;
+      if (dualWild) return false;
+      return enabled && placed.hasHero;
     });
     return fitDeckForms(withUpdatedTimestamp({ ...deck, cardIds, evolutionSlots, heroSlots }));
   }
@@ -187,17 +194,16 @@ export function createAppStore(storage: Storage): AppStore {
     toggleDeckEvolution(deck, slotIndex) {
       const card = getCard(deck.cardIds[slotIndex]);
       if (!canToggleForms(card, slotIndex)) return deck;
-      const evolutionSlots = toggleEvolution(deck.evolutionSlots, slotIndex, true);
-      const turningOn = !deck.evolutionSlots[slotIndex] && evolutionSlots[slotIndex];
+      const wantEvo = deck.evolutionSlots[slotIndex] !== true;
       return fitDeckForms(
         withUpdatedTimestamp({
           ...deck,
-          evolutionSlots,
-          heroSlots: turningOn
-            ? (deck.heroSlots ?? emptyHeroSlots()).map((enabled, index) =>
-                index === slotIndex ? false : enabled,
-              )
-            : (deck.heroSlots ?? emptyHeroSlots()),
+          evolutionSlots: deck.evolutionSlots.map((enabled, index) =>
+            index === slotIndex ? wantEvo : enabled,
+          ),
+          heroSlots: (deck.heroSlots ?? emptyHeroSlots()).map((enabled, index) =>
+            index === slotIndex ? !wantEvo : enabled,
+          ),
         }),
       );
     },
@@ -205,15 +211,16 @@ export function createAppStore(storage: Storage): AppStore {
       const card = getCard(deck.cardIds[slotIndex]);
       if (!canToggleForms(card, slotIndex)) return deck;
       const currentHeroSlots = deck.heroSlots ?? emptyHeroSlots();
-      const heroSlots = toggleHero(currentHeroSlots, slotIndex, true);
-      const turningOn = !currentHeroSlots[slotIndex] && heroSlots[slotIndex];
+      const wantHero = currentHeroSlots[slotIndex] !== true;
       return fitDeckForms(
         withUpdatedTimestamp({
           ...deck,
-          heroSlots,
-          evolutionSlots: turningOn
-            ? deck.evolutionSlots.map((enabled, index) => (index === slotIndex ? false : enabled))
-            : deck.evolutionSlots,
+          heroSlots: currentHeroSlots.map((enabled, index) =>
+            index === slotIndex ? wantHero : enabled,
+          ),
+          evolutionSlots: deck.evolutionSlots.map((enabled, index) =>
+            index === slotIndex ? !wantHero : enabled,
+          ),
         }),
       );
     },

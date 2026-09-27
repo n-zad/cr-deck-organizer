@@ -21,7 +21,7 @@ export function FolderSidebar({ folders, selected, onSelect, onManage }: FolderS
           Manage
         </Button>
       </div>
-      <nav className="flex gap-2 overflow-x-auto pb-1 md:flex-col md:overflow-visible">
+      <nav className="flex flex-wrap gap-2">
         <FolderChip active={selected === 'all'} onClick={() => onSelect('all')}>
           All decks
         </FolderChip>

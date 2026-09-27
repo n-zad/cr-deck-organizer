@@ -1,4 +1,4 @@
-import type { DragEventHandler } from 'react';
+import type { DragEvent, DragEventHandler, PointerEventHandler } from 'react';
 import { assetUrl } from '../lib/catalog.ts';
 import type { CardFrame } from '../lib/deck.ts';
 import type { CatalogCard } from '../lib/types.ts';
@@ -34,6 +34,7 @@ const sizeClass: Record<Size, string> = {
 type CardPortraitProps = {
   card?: CatalogCard;
   size?: Size;
+  widthPx?: number;
   dimmed?: boolean;
   frame?: CardFrame;
   warning?: boolean;
@@ -47,11 +48,42 @@ type CardPortraitProps = {
   onDragOver?: DragEventHandler<HTMLElement>;
   onDragLeave?: DragEventHandler<HTMLElement>;
   onDrop?: DragEventHandler<HTMLElement>;
+  onPointerDown?: PointerEventHandler<HTMLElement>;
+  onPointerMove?: PointerEventHandler<HTMLElement>;
+  onPointerUp?: PointerEventHandler<HTMLElement>;
+  onPointerCancel?: PointerEventHandler<HTMLElement>;
 };
+
+function sizeFromWidth(widthPx: number): Size {
+  if (widthPx <= 52) return 'xs';
+  if (widthPx <= 72) return 'sm';
+  return 'md';
+}
+
+/** Snapshot the portrait bitmap so the first drag is not an empty ghost. */
+function setPortraitDragImage(event: DragEvent<HTMLElement>): void {
+  const img = event.currentTarget.querySelector('img');
+  if (!img || !img.complete || img.naturalWidth === 0) return;
+  const shown = img.getBoundingClientRect();
+  const width = Math.max(1, Math.round(shown.width));
+  const height = Math.max(1, Math.round(shown.height));
+  const canvas = document.createElement('canvas');
+  canvas.width = width;
+  canvas.height = height;
+  const ctx = canvas.getContext('2d');
+  if (!ctx) return;
+  ctx.drawImage(img, 0, 0, width, height);
+  canvas.style.cssText =
+    'position:fixed;left:-9999px;top:0;width:0;height:0;pointer-events:none;opacity:0';
+  document.body.appendChild(canvas);
+  event.dataTransfer.setDragImage(canvas, width / 2, height / 2);
+  window.setTimeout(() => canvas.remove(), 0);
+}
 
 export function CardPortrait({
   card,
   size = 'sm',
+  widthPx,
   dimmed = false,
   frame = 'none',
   warning = false,
@@ -65,13 +97,18 @@ export function CardPortrait({
   onDragOver,
   onDragLeave,
   onDrop,
+  onPointerDown,
+  onPointerMove,
+  onPointerUp,
+  onPointerCancel,
 }: CardPortraitProps) {
+  const resolvedSize = widthPx != null ? sizeFromWidth(widthPx) : size;
   const className = [
     'relative block overflow-visible transition',
-    sizeClass[size],
+    widthPx == null ? sizeClass[size] : '',
     dimmed ? 'opacity-35' : '',
     onClick ? 'hover:-translate-y-0.5 hover:brightness-110' : '',
-    draggable ? 'cursor-grab active:cursor-grabbing' : '',
+    draggable || onPointerDown ? 'cursor-grab touch-none active:cursor-grabbing' : '',
   ].join(' ');
 
   const imageClass = [
@@ -81,7 +118,13 @@ export function CardPortrait({
 
   const showTabs = Boolean(card && (card.hasEvolution || card.hasHero));
   const lit = neon && frame !== 'none';
-  const neonInsetX = size === 'xs' ? '-inset-x-[8%]' : size === 'md' ? '-inset-x-[3%]' : '-inset-x-[5%]';
+  const neonInsetX =
+    resolvedSize === 'xs'
+      ? '-inset-x-[8%]'
+      : resolvedSize === 'md'
+        ? '-inset-x-[3%]'
+        : '-inset-x-[5%]';
+  const widthStyle = widthPx != null ? { width: widthPx } : undefined;
 
   const content = (
     <>
@@ -104,10 +147,10 @@ export function CardPortrait({
         <VariantTabs
           hasEvo={card!.hasEvolution}
           hasHero={card!.hasHero}
-          size={size}
+          size={resolvedSize}
         />
       )}
-      {card && showElixir && <ElixirBadge cost={card.elixir} size={size} />}
+      {card && showElixir && <ElixirBadge cost={card.elixir} size={resolvedSize} />}
       {warning && (
         <span
           className="absolute top-0 right-0 flex h-4 min-w-4 items-center justify-center rounded-full bg-amber-400 text-[10px] font-black text-navy-950 shadow-md"
@@ -121,16 +164,23 @@ export function CardPortrait({
 
   const dragProps = {
     draggable,
-    onDragStart,
+    onDragStart: (event: DragEvent<HTMLElement>) => {
+      if (draggable) setPortraitDragImage(event);
+      onDragStart?.(event);
+    },
     onDragEnd,
     onDragOver,
     onDragLeave,
     onDrop,
+    onPointerDown,
+    onPointerMove,
+    onPointerUp,
+    onPointerCancel,
   };
 
   if (!onClick) {
     return (
-      <div className={className} {...dragProps}>
+      <div className={className} style={widthStyle} {...dragProps}>
         {content}
       </div>
     );
@@ -141,6 +191,7 @@ export function CardPortrait({
       type="button"
       onClick={onClick}
       className={className}
+      style={widthStyle}
       aria-label={label ?? (card ? card.name : 'Empty slot')}
       title={card?.name}
       {...dragProps}
@@ -201,7 +252,7 @@ function ElixirBadge({ cost, size }: { cost: number | null; size: Size }) {
     size === 'md' ? 'translate-y-1/4' : '-translate-x-[25%] translate-y-[18%]';
   return (
     <span
-      className={`absolute top-0 left-0 flex items-center justify-center ${offset}`}
+      className={`absolute top-0 left-0 z-20 flex items-center justify-center ${offset}`}
       style={{ width: dim, height: Math.round(dim * 1.2) }}
     >
       <svg viewBox="0 0 24 29" className="absolute inset-0 h-full w-full" aria-hidden="true">

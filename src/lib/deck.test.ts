@@ -3,6 +3,7 @@ import {
   averageElixir,
   cardFrame,
   createDeck,
+  desiredFormsForSlot,
   firstEmptySlot,
   formatElixir,
   isCompleteDeck,
@@ -120,6 +121,14 @@ describe('deck helpers', () => {
       cardIds: [26000000, 26000001, 26000010, 26000072, 26000013, 26000031, 26000084, 26000030],
     });
     expect(shareBlockReason(illegal)).toMatch(/Hero or Wild/i);
+  });
+
+  it('requires a dual-form wild card to be evo or hero, defaulting to evo', () => {
+    const dual = card({ id: 10, name: 'Knight', hasEvolution: true, hasHero: true });
+    expect(desiredFormsForSlot(2, dual, false, false)).toEqual({ evo: true, hero: false });
+    expect(desiredFormsForSlot(2, dual, true, false)).toEqual({ evo: true, hero: false });
+    expect(desiredFormsForSlot(2, dual, false, true)).toEqual({ evo: false, hero: true });
+    expect(desiredFormsForSlot(0, dual, false, false)).toEqual({ evo: true, hero: false });
   });
 
   it('averages elixir and treats unknown costs as 1', () => {

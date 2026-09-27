@@ -79,16 +79,29 @@ describe('appStore', () => {
 
     deck = store.setDeckSlot(deck, 2, knight);
     expect(deck.cardIds[0]).toBeNull();
-    expect(deck.evolutionSlots[2]).toBe(false);
-    deck = store.toggleDeckEvolution(deck, 2);
     expect(deck.evolutionSlots[2]).toBe(true);
-    deck = store.toggleDeckHero(deck, 2);
-    expect(deck.heroSlots[2]).toBe(true);
+    expect(deck.heroSlots[2]).toBe(false);
+    deck = store.toggleDeckEvolution(deck, 2);
     expect(deck.evolutionSlots[2]).toBe(false);
+    expect(deck.heroSlots[2]).toBe(true);
+    deck = store.toggleDeckHero(deck, 2);
+    expect(deck.heroSlots[2]).toBe(false);
+    expect(deck.evolutionSlots[2]).toBe(true);
 
     const swapped = store.swapDeckSlots(deck, 2, 3);
     expect(swapped.cardIds[3]).toBe(knight);
     expect(swapped.heroSlots[3]).toBe(false);
     expect(swapped.evolutionSlots[3]).toBe(false);
+
+    const fromGeneric = store.swapDeckSlots(swapped, 3, 2);
+    expect(fromGeneric.evolutionSlots[2]).toBe(true);
+    expect(fromGeneric.heroSlots[2]).toBe(false);
+
+    let fromHero = store.setDeckSlot(newDraftDeck(), 1, knight);
+    expect(fromHero.heroSlots[1]).toBe(true);
+    fromHero = store.swapDeckSlots(fromHero, 1, 2);
+    expect(fromHero.cardIds[2]).toBe(knight);
+    expect(fromHero.heroSlots[2]).toBe(true);
+    expect(fromHero.evolutionSlots[2]).toBe(false);
   });
 });

@@ -7,6 +7,8 @@ import {
 } from '../lib/deck.ts';
 import { cardsFromIds, getTowerTroop, isChampionCard } from '../lib/catalog.ts';
 import { navigate } from '../lib/hashRoute.ts';
+import { DECK_TILE_CARD, DECK_TILE_CARD_GAP, deckListLayout } from '../lib/layout.ts';
+import { useElementWidth } from '../lib/useElementWidth.ts';
 import type { Deck, Folder } from '../lib/types.ts';
 import { CardPortrait } from './CardPortrait.tsx';
 
@@ -29,7 +31,10 @@ export function DeckTile({ deck, folderName, hideName = false, hideFolder = fals
       onClick={() => navigate(`/deck/${deck.id}`)}
       className="group w-full rounded-2xl border border-white/8 bg-navy-800/80 p-3 text-left shadow-lg shadow-black/20 transition hover:border-gold-400/40 hover:bg-navy-700/80"
     >
-      <div className="mb-3 grid grid-cols-4 justify-items-center gap-x-1 gap-y-1.5">
+      <div
+        className="mx-auto mb-3 grid grid-cols-4"
+        style={{ width: 'max-content', gap: DECK_TILE_CARD_GAP }}
+      >
         {deck.cardIds.map((_, index) => {
           const card = cards[index];
           const frame = card
@@ -44,6 +49,7 @@ export function DeckTile({ deck, folderName, hideName = false, hideFolder = fals
               key={`${deck.id}-${index}`}
               card={card}
               size="xs"
+              widthPx={DECK_TILE_CARD}
               frame={frame}
               neon={frame !== 'none' && isLegalFormSlot(index, frame)}
             />
@@ -92,6 +98,9 @@ export function DeckGrid({
   hideFolders = false,
 }: DeckGridProps) {
   const folderNames = new Map(folders.map((folder) => [folder.id, folder.name]));
+  const [areaRef, areaWidth] = useElementWidth<HTMLDivElement>();
+  const layout = deckListLayout(areaWidth);
+
   if (decks.length === 0) {
     return (
       <div className="rounded-2xl border border-dashed border-white/10 px-6 py-16 text-center">
@@ -102,16 +111,22 @@ export function DeckGrid({
   }
 
   return (
-    <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
-      {decks.map((deck) => (
-        <DeckTile
-          key={deck.id}
-          deck={deck}
-          folderName={deck.folderId ? folderNames.get(deck.folderId) : undefined}
-          hideName={hideNames}
-          hideFolder={hideFolders}
-        />
-      ))}
+    <div ref={areaRef} className="w-full">
+      <div
+        className="flex flex-wrap"
+        style={{ gap: layout.gapPx, justifyContent: layout.justify }}
+      >
+        {decks.map((deck) => (
+          <div key={deck.id} style={{ width: layout.tileWidth }}>
+            <DeckTile
+              deck={deck}
+              folderName={deck.folderId ? folderNames.get(deck.folderId) : undefined}
+              hideName={hideNames}
+              hideFolder={hideFolders}
+            />
+          </div>
+        ))}
+      </div>
     </div>
   );
 }

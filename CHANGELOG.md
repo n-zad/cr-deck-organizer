@@ -1,5 +1,13 @@
 # Changelog
 
+## v1.0.1 — 2026-09-27
+
+- Dual-form cards in the wild slot stay evo or hero: placing one or dragging it from a generic slot turns evo on, dragging from the hero slot keeps hero, and toggling one selects the other.
+- Slot selection survives the card picker, still clears when clicking empty space around the slots, and works on the first click after a drag.
+- Sized the editor, picker, and home list from available width. Folders stay above the decks, wide screens get larger home margins, and deck tiles keep a fixed card gap.
+- Tightened and right-aligned Settings, Export backup, and Restore so they wrap less on narrow screens.
+- Drew the elixir drop above the evo/hero tabs. Slot rearranging now works on touch and shows the portrait from the first drag.
+
 ## v1.0.0 — 2026-09-27
 
 - Added a settings page for hiding deck names, ignoring folders, choosing a default tower troop, and auto-deleting empty decks. Name and folder fields in the editor follow those same options.

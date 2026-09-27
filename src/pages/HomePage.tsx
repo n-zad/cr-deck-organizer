@@ -47,7 +47,7 @@ export function HomePage() {
   );
 
   return (
-    <div className="mx-auto flex max-w-6xl flex-col gap-8 px-4 py-8 sm:px-6">
+    <div className="mx-auto flex max-w-[100rem] flex-col gap-8 px-4 py-8 sm:px-6 xl:px-50">
       <header className="flex flex-col gap-6 sm:flex-row sm:items-end sm:justify-between">
         <div>
           <p className="text-xs font-semibold tracking-[0.22em] text-gold-400 uppercase">
@@ -61,7 +61,7 @@ export function HomePage() {
             want a copy elsewhere. Nothing is uploaded.
           </p>
         </div>
-        <div className="flex flex-wrap items-center gap-2">
+        <div className="flex flex-wrap items-center justify-end gap-1.5 self-end">
           <Button variant="ghost" onClick={() => navigate('/settings')}>
             <IconSettings />
             Settings
@@ -70,11 +70,7 @@ export function HomePage() {
         </div>
       </header>
 
-      <div
-        className={`grid gap-8 ${
-          state.settings.ignoreFolders ? '' : 'md:grid-cols-[13.5rem_minmax(0,1fr)]'
-        }`}
-      >
+      <div className="flex flex-col gap-6">
         {!state.settings.ignoreFolders && (
           <FolderSidebar
             folders={folders}

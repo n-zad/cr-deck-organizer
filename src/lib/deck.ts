@@ -222,9 +222,8 @@ export function desiredFormsForSlot(
   const role = slotRole(slotIndex);
   if (role === 'wild') {
     if (card.hasEvolution && card.hasHero) {
-      if (currentEvo && !currentHero) return { evo: true, hero: false };
       if (currentHero && !currentEvo) return { evo: false, hero: true };
-      return { evo: false, hero: false };
+      return { evo: true, hero: false };
     }
     return { evo: card.hasEvolution, hero: card.hasHero };
   }

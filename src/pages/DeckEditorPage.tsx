@@ -131,7 +131,7 @@ export function DeckEditorPage({ deckId }: DeckEditorPageProps) {
       className="mx-auto flex max-w-6xl flex-col gap-5 px-4 py-6 sm:px-6"
       onClick={(event) => {
         const target = event.target as HTMLElement;
-        if (target.closest('[data-deck-slots]') || target.closest('[data-card-pick]')) return;
+        if (target.closest('[data-keep-selection]')) return;
         setSelectedSlot(null);
       }}
     >

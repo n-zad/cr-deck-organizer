@@ -37,7 +37,7 @@ export function BackupBar({ state, onRestore }: BackupBarProps) {
   }
 
   return (
-    <div className="flex flex-wrap items-center gap-2">
+    <div className="flex flex-wrap items-center justify-end gap-1.5">
       <Button variant="ghost" onClick={exportFile}>
         <IconDownload />
         Export backup
