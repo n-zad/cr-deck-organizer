@@ -9,7 +9,7 @@ import { filledCardIds, fitDeckForms, shareBlockReason } from '../lib/deck.ts';
 import { navigate } from '../lib/hashRoute.ts';
 import { newDraftDeck } from '../lib/appStore.ts';
 import { serializeShareLink } from '../lib/shareLink.ts';
-import { showsImportField } from '../lib/settings.ts';
+import { ownedFormsForSettings, showsImportField } from '../lib/settings.ts';
 import { UNTITLED_DECK_NAME, type CatalogCard, type Deck } from '../lib/types.ts';
 import { store, useAppState } from '../useAppState.ts';
 
@@ -22,6 +22,7 @@ export function DeckEditorPage({ deckId }: DeckEditorPageProps) {
   const [deck, setDeck] = useState<Deck>(() =>
     fitDeckForms(
       findDeck(deckId) ?? newDraftDeck(null, store.getState().settings.defaultTowerTroopId),
+      ownedFormsForSettings(store.getState().settings),
     ),
   );
   const [newFolderOpen, setNewFolderOpen] = useState(false);

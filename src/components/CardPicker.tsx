@@ -1,9 +1,11 @@
 import { useMemo, useState } from 'react';
 import { catalog } from '../lib/catalog.ts';
 import { cardPickerLayout } from '../lib/layout.ts';
+import { variantTabOff } from '../lib/settings.ts';
 import { sortCards, type CardSortKey } from '../lib/sort.ts';
 import { useElementWidth } from '../lib/useElementWidth.ts';
 import type { CardRarity, CardType, CatalogCard } from '../lib/types.ts';
+import { useAppState } from '../useAppState.ts';
 import { CardPortrait } from './CardPortrait.tsx';
 import { Chip, IconReverse, IconSearch } from './ui.tsx';
 
@@ -33,6 +35,7 @@ type CardPickerProps = {
 };
 
 export function CardPicker({ selectedIds, onPick }: CardPickerProps) {
+  const settings = useAppState().settings;
   const [query, setQuery] = useState('');
   const [type, setType] = useState<TypeFilter>('all');
   const [rarity, setRarity] = useState<'all' | CardRarity>('all');
@@ -140,6 +143,8 @@ export function CardPicker({ selectedIds, onPick }: CardPickerProps) {
             card={card}
             size="sm"
             dimmed={selected.has(card.id)}
+            evoOff={variantTabOff(settings, card.id, 'evolution')}
+            heroOff={variantTabOff(settings, card.id, 'hero')}
             onClick={() => onPick(card)}
             label={card.name}
           />

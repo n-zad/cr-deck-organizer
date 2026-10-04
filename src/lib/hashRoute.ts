@@ -41,11 +41,13 @@ export type Route =
   | { name: 'home' }
   | { name: 'new' }
   | { name: 'settings' }
+  | { name: 'variants' }
   | { name: 'folders' }
   | { name: 'deck'; id: string };
 
 export function parseRoute(path: string): Route {
   if (path === '/new') return { name: 'new' };
+  if (path === '/settings/variants') return { name: 'variants' };
   if (path === '/settings') return { name: 'settings' };
   if (path === '/folders') return { name: 'folders' };
   const match = path.match(/^\/deck\/([^/]+)$/);

@@ -104,4 +104,33 @@ describe('appStore', () => {
     expect(fromHero.heroSlots[2]).toBe(true);
     expect(fromHero.evolutionSlots[2]).toBe(false);
   });
+
+  it('does not turn on forms the player has marked unowned, and keeps that list when tracking is off', () => {
+    const store = createAppStore(new MemoryStorage());
+    const knight = 26000000;
+    store.updateSettings({
+      trackOwnedVariants: true,
+      disabledEvolutionIds: [knight],
+      disabledHeroIds: [knight],
+    });
+
+    const evoSlot = store.setDeckSlot(newDraftDeck(), 0, knight);
+    expect(evoSlot.evolutionSlots[0]).toBe(false);
+    expect(evoSlot.heroSlots[0]).toBe(false);
+
+    const wild = store.setDeckSlot(newDraftDeck(), 2, knight);
+    expect(wild.evolutionSlots[2]).toBe(false);
+    expect(wild.heroSlots[2]).toBe(false);
+
+    store.updateSettings({ disabledHeroIds: [] });
+    const heroWild = store.setDeckSlot(newDraftDeck(), 2, knight);
+    expect(heroWild.evolutionSlots[2]).toBe(false);
+    expect(heroWild.heroSlots[2]).toBe(true);
+
+    store.updateSettings({ trackOwnedVariants: false });
+    expect(store.getState().settings.disabledEvolutionIds).toEqual([knight]);
+    expect(store.getState().settings.disabledHeroIds).toEqual([]);
+    const restored = store.setDeckSlot(newDraftDeck(), 0, knight);
+    expect(restored.evolutionSlots[0]).toBe(true);
+  });
 });

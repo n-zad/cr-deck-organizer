@@ -208,8 +208,31 @@ export function isLegalFormSlot(slotIndex: number, frame: CardFrame): boolean {
   return slotIndex === HERO_SLOT || slotIndex === WILD_SLOT;
 }
 
-export function canToggleForms(card: CatalogCard | undefined, slotIndex: number): boolean {
-  return slotRole(slotIndex) === 'wild' && card?.hasEvolution === true && card?.hasHero === true;
+/** Forms the player has turned off. Omit this to treat every form as owned. */
+export type OwnedForms = {
+  disabledEvolutionIds: ReadonlySet<number>;
+  disabledHeroIds: ReadonlySet<number>;
+};
+
+function evolutionAvailable(card: CatalogCard, owned?: OwnedForms): boolean {
+  return card.hasEvolution && !owned?.disabledEvolutionIds.has(card.id);
+}
+
+function heroAvailable(card: CatalogCard, owned?: OwnedForms): boolean {
+  return card.hasHero && !owned?.disabledHeroIds.has(card.id);
+}
+
+export function canToggleForms(
+  card: CatalogCard | undefined,
+  slotIndex: number,
+  owned?: OwnedForms,
+): boolean {
+  return (
+    slotRole(slotIndex) === 'wild' &&
+    card != null &&
+    evolutionAvailable(card, owned) &&
+    heroAvailable(card, owned)
+  );
 }
 
 export function desiredFormsForSlot(
@@ -217,22 +240,30 @@ export function desiredFormsForSlot(
   card: CatalogCard | undefined,
   currentEvo: boolean,
   currentHero: boolean,
+  owned?: OwnedForms,
 ): { evo: boolean; hero: boolean } {
   if (!card) return { evo: false, hero: false };
+  const evo = evolutionAvailable(card, owned);
+  const hero = heroAvailable(card, owned);
   const role = slotRole(slotIndex);
   if (role === 'wild') {
     if (card.hasEvolution && card.hasHero) {
-      if (currentHero && !currentEvo) return { evo: false, hero: true };
-      return { evo: true, hero: false };
+      if (evo && hero) {
+        if (currentHero && !currentEvo) return { evo: false, hero: true };
+        return { evo: true, hero: false };
+      }
+      if (evo) return { evo: true, hero: false };
+      if (hero) return { evo: false, hero: true };
+      return { evo: false, hero: false };
     }
-    return { evo: card.hasEvolution, hero: card.hasHero };
+    return { evo, hero };
   }
-  if (role === 'evo') return { evo: card.hasEvolution, hero: false };
-  if (role === 'hero') return { evo: false, hero: card.hasHero };
+  if (role === 'evo') return { evo, hero: false };
+  if (role === 'hero') return { evo: false, hero };
   return { evo: false, hero: false };
 }
 
-export function fitDeckForms(deck: Deck): Deck {
+export function fitDeckForms(deck: Deck, owned?: OwnedForms): Deck {
   const evolutionSlots = emptyEvolutionSlots();
   const heroSlots = emptyHeroSlots();
   const currentHero = deck.heroSlots ?? emptyHeroSlots();
@@ -245,6 +276,7 @@ export function fitDeckForms(deck: Deck): Deck {
       getCard(deck.cardIds[index]),
       deck.evolutionSlots[index] === true,
       currentHero[index] === true,
+      owned,
     );
     if (desired.evo && evoCount < MAX_EVOLUTIONS) {
       evolutionSlots[index] = true;

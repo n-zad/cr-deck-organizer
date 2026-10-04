@@ -40,6 +40,10 @@ export type UserSettings = {
   defaultTowerTroopId: number | null;
   autoDeleteEmptyDecks: boolean;
   importDeck: ImportDeckVisibility;
+  /** When on, decks use the disabled evolution and hero lists below. */
+  trackOwnedVariants: boolean;
+  disabledEvolutionIds: number[];
+  disabledHeroIds: number[];
 };
 
 export type TowerTroop = {

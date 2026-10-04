@@ -14,6 +14,7 @@ import {
   swapDeckSlots,
   withUpdatedTimestamp,
 } from './deck.ts';
+import { ownedFormsForSettings } from './settings.ts';
 import { parseShareLink } from './shareLink.ts';
 import { emptyState, loadState, saveState } from './storage.ts';
 import {
@@ -90,7 +91,10 @@ export function createAppStore(storage: Storage): AppStore {
       if (dualWild) return false;
       return enabled && placed.hasHero;
     });
-    return fitDeckForms(withUpdatedTimestamp({ ...deck, cardIds, evolutionSlots, heroSlots }));
+    return fitDeckForms(
+      withUpdatedTimestamp({ ...deck, cardIds, evolutionSlots, heroSlots }),
+      ownedFormsForSettings(state.settings),
+    );
   }
 
   function addCardToDeck(deck: Deck, cardId: number, preferredSlot: number | null = null): Deck {
@@ -122,6 +126,7 @@ export function createAppStore(storage: Storage): AppStore {
           heroSlots: emptyHeroSlots(),
           towerTroopId: parsed.value.towerTroopId,
         }),
+        ownedFormsForSettings(state.settings),
       ),
     );
   }
@@ -193,7 +198,7 @@ export function createAppStore(storage: Storage): AppStore {
     addCardToDeck,
     toggleDeckEvolution(deck, slotIndex) {
       const card = getCard(deck.cardIds[slotIndex]);
-      if (!canToggleForms(card, slotIndex)) return deck;
+      if (!canToggleForms(card, slotIndex, ownedFormsForSettings(state.settings))) return deck;
       const wantEvo = deck.evolutionSlots[slotIndex] !== true;
       return fitDeckForms(
         withUpdatedTimestamp({
@@ -205,11 +210,12 @@ export function createAppStore(storage: Storage): AppStore {
             index === slotIndex ? !wantEvo : enabled,
           ),
         }),
+        ownedFormsForSettings(state.settings),
       );
     },
     toggleDeckHero(deck, slotIndex) {
       const card = getCard(deck.cardIds[slotIndex]);
-      if (!canToggleForms(card, slotIndex)) return deck;
+      if (!canToggleForms(card, slotIndex, ownedFormsForSettings(state.settings))) return deck;
       const currentHeroSlots = deck.heroSlots ?? emptyHeroSlots();
       const wantHero = currentHeroSlots[slotIndex] !== true;
       return fitDeckForms(
@@ -222,10 +228,11 @@ export function createAppStore(storage: Storage): AppStore {
             index === slotIndex ? !wantHero : enabled,
           ),
         }),
+        ownedFormsForSettings(state.settings),
       );
     },
     swapDeckSlots(deck, from, to) {
-      return fitDeckForms(swapDeckSlots(deck, from, to));
+      return fitDeckForms(swapDeckSlots(deck, from, to), ownedFormsForSettings(state.settings));
     },
     updateSettings(patch) {
       update((current) => ({

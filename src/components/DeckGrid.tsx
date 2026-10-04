@@ -8,8 +8,10 @@ import {
 import { cardsFromIds, getTowerTroop, isChampionCard } from '../lib/catalog.ts';
 import { navigate } from '../lib/hashRoute.ts';
 import { DECK_TILE_CARD, DECK_TILE_CARD_GAP, deckListLayout } from '../lib/layout.ts';
+import { ownedFormActive, variantTabOff } from '../lib/settings.ts';
 import { useElementWidth } from '../lib/useElementWidth.ts';
 import type { Deck, Folder } from '../lib/types.ts';
+import { useAppState } from '../useAppState.ts';
 import { CardPortrait } from './CardPortrait.tsx';
 
 type DeckTileProps = {
@@ -20,6 +22,7 @@ type DeckTileProps = {
 };
 
 export function DeckTile({ deck, folderName, hideName = false, hideFolder = false }: DeckTileProps) {
+  const settings = useAppState().settings;
   const cards = cardsFromIds(deck.cardIds);
   const elixir = averageElixir(cards.filter(Boolean));
   const filled = filledCardIds(deck.cardIds).length;
@@ -37,13 +40,14 @@ export function DeckTile({ deck, folderName, hideName = false, hideFolder = fals
       >
         {deck.cardIds.map((_, index) => {
           const card = cards[index];
-          const frame = card
-            ? cardFrame(
-                deck.evolutionSlots[index] === true,
-                deck.heroSlots?.[index] === true,
-                isChampionCard(card),
-              )
-            : 'none';
+          const evolved = ownedFormActive(
+            settings,
+            card,
+            'evolution',
+            deck.evolutionSlots[index] === true,
+          );
+          const heroForm = ownedFormActive(settings, card, 'hero', deck.heroSlots?.[index] === true);
+          const frame = card ? cardFrame(evolved, heroForm, isChampionCard(card)) : 'none';
           return (
             <CardPortrait
               key={`${deck.id}-${index}`}
@@ -52,6 +56,8 @@ export function DeckTile({ deck, folderName, hideName = false, hideFolder = fals
               widthPx={DECK_TILE_CARD}
               frame={frame}
               neon={frame !== 'none' && isLegalFormSlot(index, frame)}
+              evoOff={card ? variantTabOff(settings, card.id, 'evolution') : false}
+              heroOff={card ? variantTabOff(settings, card.id, 'hero') : false}
             />
           );
         })}

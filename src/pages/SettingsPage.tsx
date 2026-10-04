@@ -88,6 +88,20 @@ export function SettingsPage() {
             ))}
           </select>
         </label>
+        <div className="flex flex-col gap-4 border-t border-white/8 pt-4">
+          <ToggleRow
+            title="Owned evolutions and heroes"
+            description="Dim variants you do not own, and leave those forms off when you add the card to an Evo, Hero, or Wild slot."
+            checked={settings.trackOwnedVariants}
+            onChange={(trackOwnedVariants) => store.updateSettings({ trackOwnedVariants })}
+          />
+          <div className="flex flex-wrap items-center justify-between gap-3">
+            <p className="max-w-md text-xs leading-5 text-cream-400">
+              Choose which evolutions and heroes you own. Disabled forms are still preserved when the option is turned off.
+            </p>
+            <Button onClick={() => navigate('/settings/variants')}>Choose cards</Button>
+          </div>
+        </div>
       </section>
     </div>
   );

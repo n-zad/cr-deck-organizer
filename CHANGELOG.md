@@ -1,5 +1,9 @@
 # Changelog
 
+## v1.0.3 — 2026-10-04
+
+- Added a setting to mark which evolutions and heroes you own.
+
 ## v1.0.2 — 2026-10-04
 
 - Replaced the generated install icons with the new artwork, including a 32px favicon and a maskable icon.

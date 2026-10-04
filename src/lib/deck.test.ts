@@ -131,6 +131,38 @@ describe('deck helpers', () => {
     expect(desiredFormsForSlot(0, dual, false, false)).toEqual({ evo: true, hero: false });
   });
 
+  it('leaves unowned forms off, and keeps a dual-form wild card on a form the player owns', () => {
+    const dual = card({ id: 10, name: 'Knight', hasEvolution: true, hasHero: true });
+    const neither = {
+      disabledEvolutionIds: new Set([10]),
+      disabledHeroIds: new Set([10]),
+    };
+    expect(desiredFormsForSlot(0, dual, false, false, neither)).toEqual({ evo: false, hero: false });
+    expect(desiredFormsForSlot(2, dual, true, false, neither)).toEqual({ evo: false, hero: false });
+
+    const heroOnly = {
+      disabledEvolutionIds: new Set([10]),
+      disabledHeroIds: new Set<number>(),
+    };
+    expect(desiredFormsForSlot(2, dual, true, false, heroOnly)).toEqual({ evo: false, hero: true });
+    expect(desiredFormsForSlot(1, dual, false, false, heroOnly)).toEqual({ evo: false, hero: true });
+    expect(desiredFormsForSlot(0, dual, false, false, heroOnly)).toEqual({ evo: false, hero: false });
+
+    const skeletons = card({ id: 11, name: 'Skeletons', hasEvolution: true });
+    const unownedEvo = {
+      disabledEvolutionIds: new Set([11]),
+      disabledHeroIds: new Set<number>(),
+    };
+    expect(desiredFormsForSlot(0, skeletons, false, false, unownedEvo)).toEqual({
+      evo: false,
+      hero: false,
+    });
+    expect(desiredFormsForSlot(2, skeletons, false, false, unownedEvo)).toEqual({
+      evo: false,
+      hero: false,
+    });
+  });
+
   it('averages elixir and treats unknown costs as 1', () => {
     const cards = [
       card({ id: 1, name: 'Knight', elixir: 3 }),

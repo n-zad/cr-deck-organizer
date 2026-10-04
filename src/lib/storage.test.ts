@@ -28,6 +28,9 @@ describe('storage', () => {
           defaultTowerTroopId: 159000000,
           autoDeleteEmptyDecks: false,
           importDeck: 'show',
+          trackOwnedVariants: true,
+          disabledEvolutionIds: [26000010],
+          disabledHeroIds: [26000023],
         },
       },
       storage,
@@ -39,6 +42,9 @@ describe('storage', () => {
     expect(loaded.settings.hideDeckNames).toBe(true);
     expect(loaded.settings.defaultTowerTroopId).toBe(159000000);
     expect(loaded.settings.importDeck).toBe('show');
+    expect(loaded.settings.trackOwnedVariants).toBe(true);
+    expect(loaded.settings.disabledEvolutionIds).toEqual([26000010]);
+    expect(loaded.settings.disabledHeroIds).toEqual([26000023]);
     expect(storage.getItem(STORAGE_KEY)).toContain('Hog 2.6');
   });
 

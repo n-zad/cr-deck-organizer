@@ -10,8 +10,10 @@ import {
   slotLabel,
 } from '../lib/deck.ts';
 import { deckSlotLayout, formToggleClass } from '../lib/layout.ts';
+import { ownedFormActive, ownedFormsForSettings, variantTabOff } from '../lib/settings.ts';
 import { useElementWidth } from '../lib/useElementWidth.ts';
 import type { Deck } from '../lib/types.ts';
+import { useAppState } from '../useAppState.ts';
 import { CardPortrait } from './CardPortrait.tsx';
 
 const DRAG_THRESHOLD_PX = 10;
@@ -43,6 +45,8 @@ export function DeckSlots({
   onToggleHero,
   onSwapSlots,
 }: DeckSlotsProps) {
+  const settings = useAppState().settings;
+  const owned = ownedFormsForSettings(settings);
   const cards = deck.cardIds.map((id) => getCard(id));
   const elixir = averageElixir(cards.filter(Boolean));
   const [dragFrom, setDragFrom] = useState<number | null>(null);
@@ -105,8 +109,18 @@ export function DeckSlots({
         >
           {deck.cardIds.map((id, index) => {
             const card = cards[index];
-            const evolved = deck.evolutionSlots[index] === true;
-            const heroForm = deck.heroSlots?.[index] === true;
+            const evolved = ownedFormActive(
+              settings,
+              card,
+              'evolution',
+              deck.evolutionSlots[index] === true,
+            );
+            const heroForm = ownedFormActive(
+              settings,
+              card,
+              'hero',
+              deck.heroSlots?.[index] === true,
+            );
             const role = slotLabel(index);
             const frame = card ? cardFrame(evolved, heroForm, isChampionCard(card)) : 'none';
             const warning = frame !== 'none' && !isLegalFormSlot(index, frame);
@@ -145,6 +159,8 @@ export function DeckSlots({
                   frame={frame}
                   warning={warning}
                   neon={neon}
+                  evoOff={card ? variantTabOff(settings, card.id, 'evolution') : false}
+                  heroOff={card ? variantTabOff(settings, card.id, 'hero') : false}
                   onPointerDown={
                     id == null
                       ? undefined
@@ -218,7 +234,7 @@ export function DeckSlots({
                     <FormToggle
                       label="Evo"
                       active={evolved}
-                      interactive={canToggleForms(card, index)}
+                      interactive={canToggleForms(card, index, owned)}
                       sizeClass={toggleClass}
                       activeClass="bg-fuchsia-600 text-white"
                       onClick={() => onToggleEvolution(index)}
@@ -228,7 +244,7 @@ export function DeckSlots({
                     <FormToggle
                       label="Hero"
                       active={heroForm}
-                      interactive={canToggleForms(card, index)}
+                      interactive={canToggleForms(card, index, owned)}
                       sizeClass={toggleClass}
                       activeClass="bg-amber-300 text-navy-950"
                       onClick={() => onToggleHero(index)}

@@ -4,6 +4,7 @@ import { HomePage } from './pages/HomePage.tsx';
 import { DeckEditorPage } from './pages/DeckEditorPage.tsx';
 import { FoldersPage } from './pages/FoldersPage.tsx';
 import { SettingsPage } from './pages/SettingsPage.tsx';
+import { VariantsPage } from './pages/VariantsPage.tsx';
 import { parseRoute, useHashRoute, type Route } from './lib/hashRoute.ts';
 
 function routeScrollKey(route: Route): string {
@@ -23,6 +24,8 @@ export default function App() {
   let page = <HomePage />;
   if (route.name === 'settings') {
     page = <SettingsPage />;
+  } else if (route.name === 'variants') {
+    page = <VariantsPage />;
   } else if (route.name === 'folders') {
     page = <FoldersPage />;
   } else if (route.name === 'new') {

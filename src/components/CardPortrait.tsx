@@ -40,6 +40,9 @@ type CardPortraitProps = {
   warning?: boolean;
   neon?: boolean;
   showElixir?: boolean;
+  evoOff?: boolean;
+  heroOff?: boolean;
+  pressed?: boolean;
   onClick?: () => void;
   label?: string;
   draggable?: boolean;
@@ -89,6 +92,9 @@ export function CardPortrait({
   warning = false,
   neon = false,
   showElixir = true,
+  evoOff = false,
+  heroOff = false,
+  pressed,
   onClick,
   label,
   draggable,
@@ -147,6 +153,8 @@ export function CardPortrait({
         <VariantTabs
           hasEvo={card!.hasEvolution}
           hasHero={card!.hasHero}
+          evoOff={evoOff}
+          heroOff={heroOff}
           size={resolvedSize}
         />
       )}
@@ -193,6 +201,7 @@ export function CardPortrait({
       className={className}
       style={widthStyle}
       aria-label={label ?? (card ? card.name : 'Empty slot')}
+      aria-pressed={pressed}
       title={card?.name}
       {...dragProps}
     >
@@ -204,10 +213,14 @@ export function CardPortrait({
 function VariantTabs({
   hasEvo,
   hasHero,
+  evoOff,
+  heroOff,
   size,
 }: {
   hasEvo: boolean;
   hasHero: boolean;
+  evoOff: boolean;
+  heroOff: boolean;
   size: Size;
 }) {
   // Champion gold pip is ~13% of the 285px art; tabs are a bit wider to include the frame.
@@ -218,29 +231,43 @@ function VariantTabs({
       className="pointer-events-none absolute top-[15.9%] left-1/2 z-10 flex -translate-x-1/2 -translate-y-[92%]"
       aria-hidden="true"
     >
-      {hasEvo && <GemTab tone="evo" width={width} height={height} />}
-      {hasHero && <GemTab tone="hero" width={width} height={height} />}
+      {hasEvo && <GemTab tone="evo" off={evoOff} width={width} height={height} />}
+      {hasHero && <GemTab tone="hero" off={heroOff} width={width} height={height} />}
     </span>
   );
 }
 
 function GemTab({
   tone,
+  off,
   width,
   height,
 }: {
   tone: 'evo' | 'hero';
+  off: boolean;
   width: number;
   height: number;
 }) {
-  const tab = tone === 'evo' ? '#6b21a8' : '#9a7418';
-  const gem = tone === 'evo' ? '#e879f9' : '#ffe082';
-  const shine = tone === 'evo' ? '#f5d0fe' : '#fff8e1';
+  const lit =
+    tone === 'evo'
+      ? { tab: '#6b21a8', gem: '#e879f9', shine: '#f5d0fe' }
+      : { tab: '#9a7418', gem: '#ffe082', shine: '#fff8e1' };
+  const dim =
+    tone === 'evo'
+      ? { gem: '#6a4574', shine: '#7d5c86' }
+      : { gem: '#6d5b34', shine: '#827048' };
   return (
     <svg width={width} height={height} viewBox="0 0 20 16" aria-hidden="true">
-      <path d="M1.1 16V5.2A3.8 3.8 0 0 1 4.9 1.5h10.2A3.8 3.8 0 0 1 18.9 5.2V16Z" fill={tab} />
-      <path d="M10 3.2 14.8 8.2 10 13.2 5.2 8.2Z" fill={gem} />
-      <path d="M10 4.1 13 7.3 10 8.2 7 7.3Z" fill={shine} opacity="0.7" />
+      <path
+        d="M1.1 16V5.2A3.8 3.8 0 0 1 4.9 1.5h10.2A3.8 3.8 0 0 1 18.9 5.2V16Z"
+        fill={off ? '#454b57' : lit.tab}
+      />
+      <path d="M10 3.2 14.8 8.2 10 13.2 5.2 8.2Z" fill={off ? dim.gem : lit.gem} />
+      <path
+        d="M10 4.1 13 7.3 10 8.2 7 7.3Z"
+        fill={off ? dim.shine : lit.shine}
+        opacity={off ? 0.35 : 0.7}
+      />
     </svg>
   );
 }
