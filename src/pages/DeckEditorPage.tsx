@@ -9,6 +9,7 @@ import { filledCardIds, fitDeckForms, shareBlockReason } from '../lib/deck.ts';
 import { navigate } from '../lib/hashRoute.ts';
 import { newDraftDeck } from '../lib/appStore.ts';
 import { serializeShareLink } from '../lib/shareLink.ts';
+import { showsImportField } from '../lib/settings.ts';
 import { UNTITLED_DECK_NAME, type CatalogCard, type Deck } from '../lib/types.ts';
 import { store, useAppState } from '../useAppState.ts';
 
@@ -33,6 +34,10 @@ export function DeckEditorPage({ deckId }: DeckEditorPageProps) {
   const [savedFlash, setSavedFlash] = useState(false);
   const showName = !state.settings.hideDeckNames;
   const showFolder = !state.settings.ignoreFolders;
+  const showImport = showsImportField(
+    state.settings.importDeck,
+    filledCardIds(deck.cardIds).length,
+  );
 
   useEffect(() => {
     if (notFound) return;
@@ -217,7 +222,7 @@ export function DeckEditorPage({ deckId }: DeckEditorPageProps) {
           </div>
         )}
 
-        <ShareLinkField onApply={applyLink} />
+        {showImport && <ShareLinkField onApply={applyLink} />}
 
         <label className="block max-w-xs">
           <span className="mb-1 block text-xs font-semibold tracking-wide text-cream-400 uppercase">

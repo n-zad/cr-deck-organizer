@@ -27,6 +27,7 @@ describe('storage', () => {
           ignoreFolders: false,
           defaultTowerTroopId: 159000000,
           autoDeleteEmptyDecks: false,
+          importDeck: 'show',
         },
       },
       storage,
@@ -37,6 +38,7 @@ describe('storage', () => {
     expect(loaded.decks[0]?.cardIds).toEqual([1, 2, 3, 4, 5, 6, 7, 8]);
     expect(loaded.settings.hideDeckNames).toBe(true);
     expect(loaded.settings.defaultTowerTroopId).toBe(159000000);
+    expect(loaded.settings.importDeck).toBe('show');
     expect(storage.getItem(STORAGE_KEY)).toContain('Hog 2.6');
   });
 

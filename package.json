@@ -14,8 +14,7 @@
     "test": "vitest run",
     "test:watch": "vitest",
     "lint": "eslint .",
-    "scrape-cards": "tsx --env-file=.env scripts/scrape-cards.ts",
-    "generate-icons": "tsx scripts/generate-icons.ts"
+    "scrape-cards": "tsx --env-file=.env scripts/scrape-cards.ts"
   },
   "dependencies": {
     "react": "^19.3.0",

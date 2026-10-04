@@ -32,11 +32,14 @@ export type CatalogCard = {
   image: string;
 };
 
+export type ImportDeckVisibility = 'show' | 'empty' | 'hide';
+
 export type UserSettings = {
   hideDeckNames: boolean;
   ignoreFolders: boolean;
   defaultTowerTroopId: number | null;
   autoDeleteEmptyDecks: boolean;
+  importDeck: ImportDeckVisibility;
 };
 
 export type TowerTroop = {
