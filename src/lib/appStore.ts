@@ -15,6 +15,7 @@ import {
   withUpdatedTimestamp,
 } from './deck.ts';
 import { ownedFormsForSettings } from './settings.ts';
+import { parseDeckText, placeParsedCards } from './deckText.ts';
 import { parseShareLink } from './shareLink.ts';
 import { emptyState, loadState, saveState } from './storage.ts';
 import {
@@ -39,6 +40,10 @@ export type AppStore = {
   deleteDeck: (id: string) => void;
   moveDeck: (deckId: string, folderId: string | null) => void;
   applyShareLink: (deck: Deck, pasted: string) => Result<Deck>;
+  applyDeckText: (
+    deck: Deck,
+    text: string,
+  ) => Result<{ deck: Deck; warning: string | null; placed: number }>;
   setDeckSlot: (deck: Deck, slotIndex: number, cardId: number | null) => Deck;
   addCardToDeck: (deck: Deck, cardId: number, preferredSlot?: number | null) => Deck;
   toggleDeckEvolution: (deck: Deck, slotIndex: number) => Deck;
@@ -131,6 +136,31 @@ export function createAppStore(storage: Storage): AppStore {
     );
   }
 
+  function applyDeckText(
+    deck: Deck,
+    text: string,
+  ): Result<{ deck: Deck; warning: string | null; placed: number }> {
+    const parsed = parseDeckText(text);
+    if (!parsed.ok) return parsed;
+    const placedCards = placeParsedCards(deck, parsed.value.cards, parsed.value.warning);
+    if (placedCards.placed === 0) {
+      return ok({ deck, warning: placedCards.warning, placed: 0 });
+    }
+    return ok({
+      warning: placedCards.warning,
+      placed: placedCards.placed,
+      deck: fitDeckForms(
+        withUpdatedTimestamp({
+          ...deck,
+          cardIds: placedCards.cardIds,
+          evolutionSlots: placedCards.evolutionSlots,
+          heroSlots: placedCards.heroSlots,
+        }),
+        ownedFormsForSettings(state.settings),
+      ),
+    });
+  }
+
   return {
     getState: () => state,
     subscribe(listener) {
@@ -194,6 +224,7 @@ export function createAppStore(storage: Storage): AppStore {
       }));
     },
     applyShareLink,
+    applyDeckText,
     setDeckSlot,
     addCardToDeck,
     toggleDeckEvolution(deck, slotIndex) {

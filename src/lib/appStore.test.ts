@@ -19,6 +19,71 @@ describe('appStore', () => {
     expect(store.getState().decks.find((item) => item.id === deck.id)?.folderId).toBeNull();
   });
 
+  it('fills a deck from loose card names and warns about skipped words', () => {
+    const store = createAppStore(new MemoryStorage());
+    const result = store.applyDeckText(
+      newDraftDeck(),
+      'evo gob barrel hero knight, evoprincess, infernotower ice spirit gob gang log, rocket',
+    );
+    expect(result.ok).toBe(true);
+    if (!result.ok) return;
+    expect(result.value.warning).toBeNull();
+    expect(result.value.deck.cardIds.map((id) => getCard(id)?.name)).toEqual([
+      'Goblin Barrel',
+      'Knight',
+      'Princess',
+      'Inferno Tower',
+      'Ice Spirit',
+      'Goblin Gang',
+      'The Log',
+      'Rocket',
+    ]);
+    expect(result.value.deck.evolutionSlots[0]).toBe(true);
+    expect(result.value.deck.heroSlots[1]).toBe(true);
+    expect(result.value.deck.evolutionSlots[2]).toBe(true);
+    expect(result.value.deck.cardIds[8]).toBeUndefined();
+
+    const short = store.applyDeckText(newDraftDeck(), 'hog rider, asdf, musketeer');
+    expect(short.ok).toBe(true);
+    if (!short.ok) return;
+    expect(short.value.deck.cardIds.slice(0, 3).map((id) => (id == null ? null : getCard(id)?.name))).toEqual([
+      'Hog Rider',
+      'Musketeer',
+      null,
+    ]);
+    expect(short.value.warning).toBe('Could not match: "asdf".');
+
+    const heroWild = store.applyDeckText(newDraftDeck(), 'zap arrows hero knight');
+    expect(heroWild.ok).toBe(true);
+    if (!heroWild.ok) return;
+    expect(heroWild.value.deck.cardIds.slice(0, 3).map((id) => getCard(id)?.name)).toEqual([
+      'Zap',
+      'Knight',
+      'Arrows',
+    ]);
+    expect(heroWild.value.deck.heroSlots[1]).toBe(true);
+    expect(heroWild.value.deck.heroSlots[2]).toBe(false);
+  });
+
+  it('adds matched cards into an open deck and parks an evo in the evo slot', () => {
+    const store = createAppStore(new MemoryStorage());
+    const started = store.applyDeckText(newDraftDeck(), 'rocket zap');
+    expect(started.ok).toBe(true);
+    if (!started.ok) return;
+    const added = store.applyDeckText(started.value.deck, 'evo wall breaker, hero knight');
+    expect(added.ok).toBe(true);
+    if (!added.ok) return;
+    expect(added.value.placed).toBe(2);
+    expect(added.value.deck.cardIds.slice(0, 4).map((id) => getCard(id)?.name)).toEqual([
+      'Wall Breakers',
+      'Knight',
+      'Rocket',
+      'Zap',
+    ]);
+    expect(added.value.deck.evolutionSlots[0]).toBe(true);
+    expect(added.value.deck.heroSlots[1]).toBe(true);
+  });
+
   it('applies a share link onto a draft deck', () => {
     const store = createAppStore(new MemoryStorage());
     const result = store.applyShareLink(newDraftDeck(), LOG_BAIT_LINK);

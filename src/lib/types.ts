@@ -40,6 +40,8 @@ export type UserSettings = {
   defaultTowerTroopId: number | null;
   autoDeleteEmptyDecks: boolean;
   importDeck: ImportDeckVisibility;
+  /** Show, show on an empty deck, or hide the experimental text matcher. */
+  textDeck: ImportDeckVisibility;
   /** When on, decks use the disabled evolution and hero lists below. */
   trackOwnedVariants: boolean;
   disabledEvolutionIds: number[];

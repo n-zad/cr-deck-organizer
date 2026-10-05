@@ -66,6 +66,26 @@ export function SettingsPage() {
           </select>
         </label>
         <label className="flex flex-col gap-2 border-t border-white/8 pt-4">
+          <span className="text-sm font-semibold text-cream-50">Match cards from text</span>
+          <span className="text-xs leading-5 text-cream-400">
+            When the experimental text matcher appears in the deck editor. An empty deck has no
+            cards.
+          </span>
+          <select
+            value={settings.textDeck}
+            onChange={(event) => {
+              const textDeck = event.target.value;
+              if (textDeck !== 'show' && textDeck !== 'empty' && textDeck !== 'hide') return;
+              store.updateSettings({ textDeck });
+            }}
+            className="w-full rounded-2xl border border-white/10 bg-navy-900 px-3 py-3 text-sm outline-none focus:border-gold-400/50"
+          >
+            <option value="show">Show</option>
+            <option value="empty">Show on empty deck</option>
+            <option value="hide">Hide</option>
+          </select>
+        </label>
+        <label className="flex flex-col gap-2 border-t border-white/8 pt-4">
           <span className="text-sm font-semibold text-cream-50">Default tower troop</span>
           <span className="text-xs leading-5 text-cream-400">
             New decks start with this tower troop

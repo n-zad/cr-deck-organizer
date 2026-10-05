@@ -10,13 +10,19 @@ import {
 describe('parseSettings', () => {
   it('defaults import visibility to empty decks', () => {
     expect(defaultSettings().importDeck).toBe('empty');
+    expect(defaultSettings().textDeck).toBe('show');
     expect(parseSettings({}).importDeck).toBe('empty');
+    expect(parseSettings({}).textDeck).toBe('show');
     expect(parseSettings({ importDeck: 'always' }).importDeck).toBe('empty');
+    expect(parseSettings({ textDeck: 'always' }).textDeck).toBe('show');
   });
 
   it('keeps a known import visibility', () => {
     expect(parseSettings({ importDeck: 'show' }).importDeck).toBe('show');
     expect(parseSettings({ importDeck: 'hide' }).importDeck).toBe('hide');
+    expect(parseSettings({ textDeck: 'show' }).textDeck).toBe('show');
+    expect(parseSettings({ textDeck: 'empty' }).textDeck).toBe('empty');
+    expect(parseSettings({ textDeck: 'hide' }).textDeck).toBe('hide');
   });
 
   it('starts with every evolution and hero owned', () => {

@@ -3,6 +3,7 @@ import { CardPicker } from '../components/CardPicker.tsx';
 import { DeckSlots } from '../components/DeckSlots.tsx';
 import { Modal } from '../components/Modal.tsx';
 import { ShareLinkField } from '../components/ShareLinkField.tsx';
+import { TextDeckField } from '../components/TextDeckField.tsx';
 import { Button, IconBack, IconCopy, IconPlus, IconTrash } from '../components/ui.tsx';
 import { catalog, getCard } from '../lib/catalog.ts';
 import { filledCardIds, fitDeckForms, shareBlockReason } from '../lib/deck.ts';
@@ -10,7 +11,7 @@ import { navigate } from '../lib/hashRoute.ts';
 import { newDraftDeck } from '../lib/appStore.ts';
 import { serializeShareLink } from '../lib/shareLink.ts';
 import { ownedFormsForSettings, showsImportField } from '../lib/settings.ts';
-import { UNTITLED_DECK_NAME, type CatalogCard, type Deck } from '../lib/types.ts';
+import { DECK_SIZE, UNTITLED_DECK_NAME, type CatalogCard, type Deck } from '../lib/types.ts';
 import { store, useAppState } from '../useAppState.ts';
 
 type DeckEditorPageProps = {
@@ -33,12 +34,14 @@ export function DeckEditorPage({ deckId }: DeckEditorPageProps) {
   const [copyState, setCopyState] = useState<'idle' | 'copied' | 'error' | 'blocked'>('idle');
   const [copyMessage, setCopyMessage] = useState<string | null>(null);
   const [savedFlash, setSavedFlash] = useState(false);
+  const [textNotice, setTextNotice] = useState<{ tone: 'ok' | 'warn' | 'error'; message: string } | null>(
+    null,
+  );
   const showName = !state.settings.hideDeckNames;
   const showFolder = !state.settings.ignoreFolders;
-  const showImport = showsImportField(
-    state.settings.importDeck,
-    filledCardIds(deck.cardIds).length,
-  );
+  const filledCount = filledCardIds(deck.cardIds).length;
+  const showImport = showsImportField(state.settings.importDeck, filledCount);
+  const showTextMatch = showsImportField(state.settings.textDeck, filledCount);
 
   useEffect(() => {
     if (notFound) return;
@@ -88,6 +91,32 @@ export function DeckEditorPage({ deckId }: DeckEditorPageProps) {
     setDeck(result.value);
     setSelectedSlot(0);
     return null;
+  }
+
+  function applyText(
+    value: string,
+  ): { ok: true; message: string; tone: 'ok' | 'warn'; clear: boolean } | { ok: false; error: string } {
+    const merging =
+      filledCardIds(deck.cardIds).length > 0 && filledCardIds(deck.cardIds).length < 8;
+    const result = store.applyDeckText(deck, value);
+    if (!result.ok) {
+      setTextNotice({ tone: 'error', message: result.error });
+      return result;
+    }
+    const lead = merging ? 'Added the matched cards.' : 'Matched a deck from that text.';
+    const message =
+      result.value.placed === 0
+        ? (result.value.warning ?? 'Those cards are already in this deck.')
+        : result.value.warning
+          ? `${lead} ${result.value.warning}`
+          : lead;
+    const tone = result.value.warning || result.value.placed === 0 ? 'warn' : 'ok';
+    if (result.value.placed > 0) {
+      setDeck(result.value.deck);
+      setSelectedSlot(0);
+    }
+    setTextNotice({ tone, message });
+    return { ok: true, message, tone, clear: result.value.placed > 0 };
   }
 
   async function copyLink(): Promise<void> {
@@ -224,6 +253,22 @@ export function DeckEditorPage({ deckId }: DeckEditorPageProps) {
         )}
 
         {showImport && <ShareLinkField onApply={applyLink} />}
+        {showTextMatch && (
+          <TextDeckField replacesDeck={filledCount >= DECK_SIZE} onApply={applyText} />
+        )}
+        {!showTextMatch && textNotice && (
+          <p
+            className={`text-sm ${
+              textNotice.tone === 'ok'
+                ? 'text-emerald-300'
+                : textNotice.tone === 'warn'
+                  ? 'text-amber-300'
+                  : 'text-red-300'
+            }`}
+          >
+            {textNotice.message}
+          </p>
+        )}
 
         <label className="block max-w-xs">
           <span className="mb-1 block text-xs font-semibold tracking-wide text-cream-400 uppercase">

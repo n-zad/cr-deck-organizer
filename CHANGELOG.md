@@ -1,5 +1,9 @@
 # Changelog
 
+## v1.0.4 — 2026-10-04
+
+- Added an experimental text matcher in the deck editor to parse card names from the input, including shortened/slang names for cards.
+
 ## v1.0.3 — 2026-10-04
 
 - Added a setting to mark which evolutions and heroes you own.

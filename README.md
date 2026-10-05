@@ -4,7 +4,7 @@ A Progressive Web App for saving Clash Royale decks and keeping them organized.
 
 Add a deck by manually selecting cards or pasting a Clash Royale deck share link. Organize decks into folders. Everything lives in the browser and local storage (there is no account or cloud sync). Export a single master backup file whenever you want a copy you can store elsewhere or restore later.
 
-The current version is **1.0.1**. See [CHANGELOG.md](CHANGELOG.md) for what changed in each release.
+The current version is **1.0.4**. See [CHANGELOG.md](CHANGELOG.md) for what changed in each release.
 
 ---
 

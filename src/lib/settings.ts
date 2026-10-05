@@ -8,6 +8,7 @@ export function defaultSettings(): UserSettings {
     defaultTowerTroopId: null,
     autoDeleteEmptyDecks: false,
     importDeck: 'empty',
+    textDeck: 'show',
     trackOwnedVariants: false,
     disabledEvolutionIds: [],
     disabledHeroIds: [],
@@ -26,6 +27,7 @@ export function parseSettings(value: unknown): UserSettings {
         : null,
     autoDeleteEmptyDecks: value.autoDeleteEmptyDecks === true,
     importDeck: parseImportDeck(value.importDeck),
+    textDeck: parseTextDeck(value.textDeck),
     trackOwnedVariants: value.trackOwnedVariants === true,
     disabledEvolutionIds: parseIdList(value.disabledEvolutionIds),
     disabledHeroIds: parseIdList(value.disabledHeroIds),
@@ -93,6 +95,11 @@ export function showsImportField(
 function parseImportDeck(value: unknown): ImportDeckVisibility {
   if (value === 'show' || value === 'empty' || value === 'hide') return value;
   return 'empty';
+}
+
+function parseTextDeck(value: unknown): ImportDeckVisibility {
+  if (value === 'show' || value === 'empty' || value === 'hide') return value;
+  return 'show';
 }
 
 function parseIdList(value: unknown): number[] {
