@@ -4,11 +4,19 @@ import { DeckSlots } from '../components/DeckSlots.tsx';
 import { Modal } from '../components/Modal.tsx';
 import { ShareLinkField } from '../components/ShareLinkField.tsx';
 import { TextDeckField } from '../components/TextDeckField.tsx';
-import { Button, IconBack, IconCopy, IconPlus, IconTrash } from '../components/ui.tsx';
+import {
+  Button,
+  IconBack,
+  IconCopy,
+  IconExternal,
+  IconPlus,
+  IconTrash,
+} from '../components/ui.tsx';
 import { catalog, getCard } from '../lib/catalog.ts';
 import { filledCardIds, fitDeckForms, shareBlockReason } from '../lib/deck.ts';
 import { navigate } from '../lib/hashRoute.ts';
 import { newDraftDeck } from '../lib/appStore.ts';
+import { openDeckInGame } from '../lib/copyInGame.ts';
 import { serializeShareLink } from '../lib/shareLink.ts';
 import { ownedFormsForSettings, showsImportField } from '../lib/settings.ts';
 import { DECK_SIZE, UNTITLED_DECK_NAME, type CatalogCard, type Deck } from '../lib/types.ts';
@@ -33,6 +41,7 @@ export function DeckEditorPage({ deckId }: DeckEditorPageProps) {
   const [confirmDelete, setConfirmDelete] = useState(false);
   const [copyState, setCopyState] = useState<'idle' | 'copied' | 'error' | 'blocked'>('idle');
   const [copyMessage, setCopyMessage] = useState<string | null>(null);
+  const [gameState, setGameState] = useState<'idle' | 'opening' | 'blocked'>('idle');
   const [savedFlash, setSavedFlash] = useState(false);
   const [textNotice, setTextNotice] = useState<{ tone: 'ok' | 'warn' | 'error'; message: string } | null>(
     null,
@@ -149,6 +158,28 @@ export function DeckEditorPage({ deckId }: DeckEditorPageProps) {
     }, 1500);
   }
 
+  function copyInGame(): void {
+    const blocked = shareBlockReason(deck);
+    if (blocked) {
+      setGameState('blocked');
+      setCopyMessage(blocked);
+      window.setTimeout(() => {
+        setGameState('idle');
+        setCopyMessage(null);
+      }, 2800);
+      return;
+    }
+    setGameState('opening');
+    setCopyMessage(null);
+    openDeckInGame(deck, () =>
+      setCopyMessage('Clash Royale did not open. It needs to be installed on this device.'),
+    );
+    window.setTimeout(() => {
+      setGameState('idle');
+      setCopyMessage(null);
+    }, 4300);
+  }
+
   if (notFound) {
     return (
       <div className="mx-auto max-w-3xl px-4 py-16 text-center">
@@ -180,6 +211,14 @@ export function DeckEditorPage({ deckId }: DeckEditorPageProps) {
         </span>
         <div className="ml-auto flex flex-col items-end gap-1">
           <div className="flex flex-wrap justify-end gap-2">
+            <Button title="Open Clash Royale and copy this deck" onClick={copyInGame}>
+              <IconExternal />
+              {gameState === 'opening'
+                ? 'Opening game'
+                : gameState === 'blocked'
+                  ? 'Cannot copy'
+                  : 'Copy in game'}
+            </Button>
             <Button variant="gold" onClick={() => void copyLink()}>
               <IconCopy />
               {copyState === 'copied'

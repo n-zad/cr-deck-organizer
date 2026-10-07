@@ -13,7 +13,7 @@ export default defineConfig({
       includeAssets: ['icons/*.png', '.nojekyll'],
       manifest: {
         name: 'Clash Royale Deck Organizer',
-        short_name: 'CR Decks',
+        short_name: 'CR Deck Organizer',
         description: 'Save Clash Royale decks in your browser and keep them organized.',
         theme_color: '#0c1220',
         background_color: '#070b14',

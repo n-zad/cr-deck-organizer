@@ -4,7 +4,15 @@ A Progressive Web App for saving Clash Royale decks and keeping them organized.
 
 Add a deck by manually selecting cards or pasting a Clash Royale deck share link. Organize decks into folders. Everything lives in the browser and local storage (there is no account or cloud sync). Export a single master backup file whenever you want a copy you can store elsewhere or restore later.
 
-The current version is **1.0.4**. See [CHANGELOG.md](CHANGELOG.md) for what changed in each release.
+The current version is **1.0.5**. See [CHANGELOG.md](CHANGELOG.md) for what changed in each release.
+
+---
+
+## PWA Notes
+
+A Progressive Web App (PWA) is a website that can be installed like a regular app. It gets its own icon and window, and it keeps working offline once loaded. Install it from the browser menu ("Add to Home screen" or "Install app").
+
+Installing through Samsung Internet may warn that the app "was built for an older version of Android." Samsung packages PWAs with an outdated `targetSdkVersion`, so this happens to any PWA. Install from Chrome instead, or tap **More details → Install anyway** to continue with Samsung Internet.
 
 ---
 

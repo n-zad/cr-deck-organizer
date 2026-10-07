@@ -75,14 +75,14 @@ export function DeckSlots({
     return Number.isInteger(index) ? index : null;
   }
 
-  function endPointerDrag(x: number, y: number): void {
+  function endPointerDrag(x: number, y: number, timeStamp: number): void {
     const session = pointerDragRef.current;
     pointerDragRef.current = null;
     setDragFrom(null);
     setDragOver(null);
     setGhost(null);
     if (!session?.active) return;
-    ignoreClicksUntilRef.current = performance.now() + 400;
+    ignoreClicksUntilRef.current = timeStamp + 400;
     const to = slotAtPoint(x, y);
     if (to == null || to === session.from) return;
     onSwapSlots(session.from, to);
@@ -210,7 +210,7 @@ export function DeckSlots({
                   }}
                   onPointerUp={(event) => {
                     if (pointerDragRef.current?.pointerId !== event.pointerId) return;
-                    endPointerDrag(event.clientX, event.clientY);
+                    endPointerDrag(event.clientX, event.clientY, event.timeStamp);
                   }}
                   onPointerCancel={() => {
                     pointerDragRef.current = null;

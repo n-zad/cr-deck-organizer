@@ -40,6 +40,10 @@ export function parseShareLink(input: string): Result<ParsedShareLink> {
 }
 
 export function serializeShareLink(parsed: ParsedShareLink): string {
+  return `https://link.clashroyale.com/en?${serializeCopyDeckDeepLink(parsed)}`;
+}
+
+export function serializeCopyDeckDeepLink(parsed: ParsedShareLink): string {
   const deck = parsed.cardIds.join(';');
   const slots = parsed.evolutionSlots
     .slice(0, DECK_SIZE)
@@ -49,7 +53,7 @@ export function serializeShareLink(parsed: ParsedShareLink): string {
   if (parsed.towerTroopId != null) {
     params.push(`tt=${parsed.towerTroopId}`);
   }
-  return `https://link.clashroyale.com/en?clashroyale://copyDeck?${params.join('&')}`;
+  return `clashroyale://copyDeck?${params.join('&')}`;
 }
 
 export function serializeSimpleShareLink(cardIds: number[]): string {

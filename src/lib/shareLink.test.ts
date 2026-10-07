@@ -1,5 +1,10 @@
 import { describe, expect, it } from 'vitest';
-import { parseShareLink, serializeShareLink, serializeSimpleShareLink } from './shareLink.ts';
+import {
+  parseShareLink,
+  serializeCopyDeckDeepLink,
+  serializeShareLink,
+  serializeSimpleShareLink,
+} from './shareLink.ts';
 
 const COPY_DECK_LINK =
   'https://link.clashroyale.com/en?clashroyale://copyDeck?deck=28000004;26000000;26000026;27000003;26000041;26000030;28000011;28000003&slots=0;0;0;0;0;0;0;0&tt=159000000';
@@ -78,6 +83,15 @@ describe('serializeShareLink', () => {
     expect(again.ok).toBe(true);
     if (!again.ok) return;
     expect(again.value).toEqual(parsed.value);
+  });
+
+  it('wraps the copyDeck deep link', () => {
+    const parsed = parseShareLink(COPY_DECK_LINK);
+    expect(parsed.ok).toBe(true);
+    if (!parsed.ok) return;
+    const deepLink = serializeCopyDeckDeepLink(parsed.value);
+    expect(deepLink).toBe(COPY_DECK_LINK.replace('https://link.clashroyale.com/en?', ''));
+    expect(serializeShareLink(parsed.value)).toBe(COPY_DECK_LINK);
   });
 
   it('writes the simple HTTP form', () => {

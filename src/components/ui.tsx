@@ -46,6 +46,16 @@ export function IconCopy() {
   );
 }
 
+export function IconExternal() {
+  return (
+    <svg viewBox="0 0 24 24" aria-hidden="true" className="h-4 w-4" fill="none" stroke="currentColor" strokeWidth="1.8">
+      <path d="M14 4h6v6" strokeLinecap="round" strokeLinejoin="round" />
+      <path d="M20 4 11 13" strokeLinecap="round" />
+      <path d="M18 14v4a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4" strokeLinecap="round" />
+    </svg>
+  );
+}
+
 export function IconBack() {
   return (
     <svg viewBox="0 0 24 24" aria-hidden="true" className="h-4 w-4" fill="none" stroke="currentColor" strokeWidth="1.8">

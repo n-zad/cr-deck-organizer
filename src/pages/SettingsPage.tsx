@@ -46,6 +46,12 @@ export function SettingsPage() {
           checked={settings.autoDeleteEmptyDecks}
           onChange={(autoDeleteEmptyDecks) => store.updateSettings({ autoDeleteEmptyDecks })}
         />
+        <ToggleRow
+          title="Copy in-game from the deck list"
+          description="Add a 'Copy in-game' button to each deck listed. It is dimmed for incomplete decks."
+          checked={settings.copyInGameOnTiles}
+          onChange={(copyInGameOnTiles) => store.updateSettings({ copyInGameOnTiles })}
+        />
         <label className="flex flex-col gap-2 border-t border-white/8 pt-4">
           <span className="text-sm font-semibold text-cream-50">Import a deck</span>
           <span className="text-xs leading-5 text-cream-400">

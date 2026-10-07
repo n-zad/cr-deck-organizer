@@ -1,5 +1,12 @@
 # Changelog
 
+## v1.0.5 — 2026-10-07
+
+- Updated the maskable and Apple touch icons.
+- Renamed the installed app to "CR Deck Organizer".
+- Added a "Copy in game" button in the deck editor that opens Clash Royale with the deck ready to copy.
+- Added a setting (off by default) to show "Copy in game" on each deck in the list. The button is dimmed for incomplete decks.
+
 ## v1.0.4 — 2026-10-04
 
 - Added an experimental text matcher in the deck editor to parse card names from the input, including shortened/slang names for cards.

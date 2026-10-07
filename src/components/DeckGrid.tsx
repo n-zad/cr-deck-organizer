@@ -1,11 +1,14 @@
+import { useState } from 'react';
 import {
   averageElixir,
   cardFrame,
   filledCardIds,
   formatElixir,
   isLegalFormSlot,
+  shareBlockReason,
 } from '../lib/deck.ts';
 import { cardsFromIds, getTowerTroop, isChampionCard } from '../lib/catalog.ts';
+import { openDeckInGame } from '../lib/copyInGame.ts';
 import { navigate } from '../lib/hashRoute.ts';
 import { DECK_TILE_CARD, DECK_TILE_CARD_GAP, deckListLayout } from '../lib/layout.ts';
 import { ownedFormActive, variantTabOff } from '../lib/settings.ts';
@@ -13,6 +16,7 @@ import { useElementWidth } from '../lib/useElementWidth.ts';
 import type { Deck, Folder } from '../lib/types.ts';
 import { useAppState } from '../useAppState.ts';
 import { CardPortrait } from './CardPortrait.tsx';
+import { IconExternal } from './ui.tsx';
 
 type DeckTileProps = {
   deck: Deck;
@@ -29,59 +33,95 @@ export function DeckTile({ deck, folderName, hideName = false, hideFolder = fals
   const tower = getTowerTroop(deck.towerTroopId);
 
   return (
+    <div className="group w-full rounded-2xl border border-white/8 bg-navy-800/80 p-3 shadow-lg shadow-black/20 transition hover:border-gold-400/40 hover:bg-navy-700/80">
+      <button
+        type="button"
+        onClick={() => navigate(`/deck/${deck.id}`)}
+        className="block w-full text-left"
+      >
+        <div
+          className="mx-auto mb-3 grid grid-cols-4"
+          style={{ width: 'max-content', gap: DECK_TILE_CARD_GAP }}
+        >
+          {deck.cardIds.map((_, index) => {
+            const card = cards[index];
+            const evolved = ownedFormActive(
+              settings,
+              card,
+              'evolution',
+              deck.evolutionSlots[index] === true,
+            );
+            const heroForm = ownedFormActive(
+              settings,
+              card,
+              'hero',
+              deck.heroSlots?.[index] === true,
+            );
+            const frame = card ? cardFrame(evolved, heroForm, isChampionCard(card)) : 'none';
+            return (
+              <CardPortrait
+                key={`${deck.id}-${index}`}
+                card={card}
+                size="xs"
+                widthPx={DECK_TILE_CARD}
+                frame={frame}
+                neon={frame !== 'none' && isLegalFormSlot(index, frame)}
+                evoOff={card ? variantTabOff(settings, card.id, 'evolution') : false}
+                heroOff={card ? variantTabOff(settings, card.id, 'hero') : false}
+              />
+            );
+          })}
+        </div>
+        <div className="flex items-start justify-between gap-3">
+          <div className="min-w-0">
+            {!hideName && (
+              <h3 className="truncate font-semibold text-cream-50 group-hover:text-gold-300">
+                {deck.name}
+              </h3>
+            )}
+            {(!hideFolder || tower) && (
+              <p className={`text-xs text-cream-400 ${hideName ? '' : 'mt-0.5'}`}>
+                {hideFolder ? '' : (folderName ?? 'Unfiled')}
+                {!hideFolder && tower ? ' · ' : ''}
+                {tower ? tower.name : ''}
+              </p>
+            )}
+          </div>
+          <div className="text-right text-xs text-cream-400">
+            <div className="font-medium text-cream-200">{formatElixir(elixir)} elixir</div>
+            <div>{filled}/8 cards</div>
+          </div>
+        </div>
+      </button>
+      {settings.copyInGameOnTiles && <CopyInGameButton deck={deck} />}
+    </div>
+  );
+}
+
+function CopyInGameButton({ deck }: { deck: Deck }) {
+  const [state, setState] = useState<'idle' | 'opening' | 'missing'>('idle');
+  const blocked = shareBlockReason(deck);
+
+  function open(): void {
+    setState('opening');
+    openDeckInGame(deck, () => setState('missing'));
+    window.setTimeout(() => setState('idle'), 4300);
+  }
+
+  return (
     <button
       type="button"
-      onClick={() => navigate(`/deck/${deck.id}`)}
-      className="group w-full rounded-2xl border border-white/8 bg-navy-800/80 p-3 text-left shadow-lg shadow-black/20 transition hover:border-gold-400/40 hover:bg-navy-700/80"
+      disabled={blocked != null}
+      title={blocked ?? 'Open Clash Royale and copy this deck'}
+      onClick={open}
+      className="mt-3 inline-flex w-full items-center justify-center gap-2 rounded-full border border-white/10 bg-navy-700 px-3 py-1.5 text-xs font-medium text-cream-50 transition hover:bg-navy-600 disabled:cursor-not-allowed disabled:opacity-40 disabled:hover:bg-navy-700"
     >
-      <div
-        className="mx-auto mb-3 grid grid-cols-4"
-        style={{ width: 'max-content', gap: DECK_TILE_CARD_GAP }}
-      >
-        {deck.cardIds.map((_, index) => {
-          const card = cards[index];
-          const evolved = ownedFormActive(
-            settings,
-            card,
-            'evolution',
-            deck.evolutionSlots[index] === true,
-          );
-          const heroForm = ownedFormActive(settings, card, 'hero', deck.heroSlots?.[index] === true);
-          const frame = card ? cardFrame(evolved, heroForm, isChampionCard(card)) : 'none';
-          return (
-            <CardPortrait
-              key={`${deck.id}-${index}`}
-              card={card}
-              size="xs"
-              widthPx={DECK_TILE_CARD}
-              frame={frame}
-              neon={frame !== 'none' && isLegalFormSlot(index, frame)}
-              evoOff={card ? variantTabOff(settings, card.id, 'evolution') : false}
-              heroOff={card ? variantTabOff(settings, card.id, 'hero') : false}
-            />
-          );
-        })}
-      </div>
-      <div className="flex items-start justify-between gap-3">
-        <div className="min-w-0">
-          {!hideName && (
-            <h3 className="truncate font-semibold text-cream-50 group-hover:text-gold-300">
-              {deck.name}
-            </h3>
-          )}
-          {(!hideFolder || tower) && (
-            <p className={`text-xs text-cream-400 ${hideName ? '' : 'mt-0.5'}`}>
-              {hideFolder ? '' : (folderName ?? 'Unfiled')}
-              {!hideFolder && tower ? ' · ' : ''}
-              {tower ? tower.name : ''}
-            </p>
-          )}
-        </div>
-        <div className="text-right text-xs text-cream-400">
-          <div className="font-medium text-cream-200">{formatElixir(elixir)} elixir</div>
-          <div>{filled}/8 cards</div>
-        </div>
-      </div>
+      <IconExternal />
+      {state === 'opening'
+        ? 'Opening game'
+        : state === 'missing'
+          ? 'Clash Royale did not open'
+          : 'Copy in game'}
     </button>
   );
 }

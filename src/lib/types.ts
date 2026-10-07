@@ -42,6 +42,8 @@ export type UserSettings = {
   importDeck: ImportDeckVisibility;
   /** Show, show on an empty deck, or hide the experimental text matcher. */
   textDeck: ImportDeckVisibility;
+  /** Show a "Copy in game" button on each home-list deck tile. */
+  copyInGameOnTiles: boolean;
   /** When on, decks use the disabled evolution and hero lists below. */
   trackOwnedVariants: boolean;
   disabledEvolutionIds: number[];

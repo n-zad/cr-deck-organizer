@@ -25,6 +25,13 @@ describe('parseSettings', () => {
     expect(parseSettings({ textDeck: 'hide' }).textDeck).toBe('hide');
   });
 
+  it('hides the home-list copy in game button by default', () => {
+    expect(defaultSettings().copyInGameOnTiles).toBe(false);
+    expect(parseSettings({}).copyInGameOnTiles).toBe(false);
+    expect(parseSettings({ copyInGameOnTiles: 'yes' }).copyInGameOnTiles).toBe(false);
+    expect(parseSettings({ copyInGameOnTiles: true }).copyInGameOnTiles).toBe(true);
+  });
+
   it('starts with every evolution and hero owned', () => {
     expect(defaultSettings().trackOwnedVariants).toBe(false);
     expect(defaultSettings().disabledEvolutionIds).toEqual([]);
