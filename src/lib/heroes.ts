@@ -4,6 +4,7 @@ export const HERO_CARD_NAMES = new Set<string>([
   'Berserker',
   'Bowler',
   'Dark Prince',
+  'Electro Wizard',
   'Giant',
   'Goblins',
   'Ice Golem',
@@ -19,7 +20,6 @@ export const HERO_CARD_NAMES = new Set<string>([
 ]);
 
 export const HERO_EVOLUTION_NAMES = new Set<string>([
-  'Goblins',
   'Knight',
   'Musketeer',
   'Valkyrie',

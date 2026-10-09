@@ -2,8 +2,14 @@
  * Rebuilds the shipped card catalog from the official Clash Royale API,
  * then enriches type / tower-troop data from Clash Strategic stats.
  *
+ * The ClashStrategic GitHub repo was taken down (Aug 2026); jsDelivr still serves a
+ * frozen copy, so it is only a fallback. Hero forms are not exposed reliably by either
+ * source and come from src/lib/heroes.ts, which must be updated by hand for new heroes.
+ *
  * Usage: npm run scrape-cards
  * Requires CLASH_ROYALE_API_TOKEN in .env (IP-allowlisted developer token).
+ * Set CLASH_ROYALE_API_BASE_URL=https://proxy.royaleapi.dev to call through RoyaleAPI's
+ * fixed-IP proxy (the key must then allowlist 45.79.218.79).
  */
 
 import { access, mkdir, writeFile } from 'node:fs/promises';
@@ -20,7 +26,10 @@ import {
   type TowerTroop,
 } from '../src/lib/types.ts';
 
-const OFFICIAL_CARDS_URL = 'https://api.clashroyale.com/v1/cards';
+const OFFICIAL_API_BASE_URL = (
+  process.env.CLASH_ROYALE_API_BASE_URL?.trim() || 'https://api.clashroyale.com'
+).replace(/\/+$/, '');
+const OFFICIAL_CARDS_URL = `${OFFICIAL_API_BASE_URL}/v1/cards`;
 const CLASH_STRATEGIC_URL =
   'https://cdn.jsdelivr.net/gh/ClashStrategic/stats/data/cards.json';
 const IMAGE_DIR = path.resolve('public/cards');
@@ -40,6 +49,7 @@ type OfficialCard = {
 
 type OfficialCardsResponse = {
   items?: OfficialCard[];
+  supportItems?: OfficialCard[];
 };
 
 type StrategicCard = {
@@ -137,7 +147,7 @@ async function downloadImage(url: string, dest: string): Promise<void> {
   await writeFile(dest, bytes);
 }
 
-function toTowerTroop(card: StrategicCard): TowerTroop {
+function toTowerTroop(card: StrategicCard | OfficialCard): TowerTroop {
   return {
     id: card.id,
     name: card.name,
@@ -218,10 +228,17 @@ async function main(): Promise<void> {
 
   cards.sort((a, b) => a.name.localeCompare(b.name) || a.id - b.id);
 
+  const towerSource =
+    (official.supportItems?.length ?? 0) > 0 ? official.supportItems! : strategicTowers;
   const towerTroops =
-    strategicTowers.length > 0
-      ? strategicTowers.map(toTowerTroop).sort((a, b) => a.id - b.id)
+    towerSource.length > 0
+      ? towerSource.map(toTowerTroop).sort((a, b) => a.id - b.id)
       : [...FALLBACK_TOWER_TROOPS];
+
+  // The API appears to encode maxEvolutionLevel as a bitmask (1 = evo, 2 = hero, 3 = both).
+  const suspectedHeroes = officialCards
+    .filter((card) => (card.maxEvolutionLevel ?? 0) >= 2 && !isHeroName(card.name))
+    .map((card) => `${card.name} (maxEvolutionLevel ${card.maxEvolutionLevel})`);
 
   const catalog: Catalog = {
     schemaVersion: CATALOG_SCHEMA_VERSION,
@@ -239,6 +256,12 @@ async function main(): Promise<void> {
   console.log(`Wrote ${cards.length} cards to ${path.relative(process.cwd(), CATALOG_PATH)}`);
   console.log(`Portraits directory: ${path.relative(process.cwd(), IMAGE_DIR)}`);
   console.log(`Tower troops: ${towerTroops.map((troop) => troop.name).join(', ')}`);
+  if (suspectedHeroes.length > 0) {
+    console.warn('Possible heroes missing from src/lib/heroes.ts (verify, then add them):');
+    for (const line of suspectedHeroes) {
+      console.warn(`  - ${line}`);
+    }
+  }
   if (missingArt.length > 0) {
     console.warn(`Image issues (${missingArt.length}):`);
     for (const line of missingArt) {

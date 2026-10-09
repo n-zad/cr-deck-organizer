@@ -13,6 +13,7 @@
       "rarity": "champion",
       "type": "troop",
       "hasEvolution": false,
+      "hasHero": false,
       "image": "cards/26000072.png"
     },
     {
@@ -22,6 +23,7 @@
       "rarity": "common",
       "type": "troop",
       "hasEvolution": true,
+      "hasHero": false,
       "image": "cards/26000001.png"
     },
     {
@@ -31,6 +33,7 @@
       "rarity": "common",
       "type": "spell",
       "hasEvolution": false,
+      "hasHero": false,
       "image": "cards/28000001.png"
     },
     {
@@ -40,6 +43,7 @@
       "rarity": "epic",
       "type": "troop",
       "hasEvolution": true,
+      "hasHero": false,
       "image": "cards/26000015.png"
     },
     {
@@ -48,7 +52,8 @@
       "elixir": 5,
       "rarity": "epic",
       "type": "troop",
-      "hasEvolution": true,
+      "hasEvolution": false,
+      "hasHero": true,
       "image": "cards/26000006.png"
     },
     {
@@ -58,6 +63,7 @@
       "rarity": "legendary",
       "type": "troop",
       "hasEvolution": false,
+      "hasHero": false,
       "image": "cards/26000046.png"
     },
     {
@@ -66,7 +72,8 @@
       "elixir": 2,
       "rarity": "epic",
       "type": "spell",
-      "hasEvolution": true,
+      "hasEvolution": false,
+      "hasHero": true,
       "image": "cards/28000015.png"
     },
     {
@@ -76,6 +83,7 @@
       "rarity": "rare",
       "type": "building",
       "hasEvolution": false,
+      "hasHero": false,
       "image": "cards/27000005.png"
     },
     {
@@ -85,6 +93,7 @@
       "rarity": "common",
       "type": "troop",
       "hasEvolution": true,
+      "hasHero": false,
       "image": "cards/26000008.png"
     },
     {
@@ -94,6 +103,7 @@
       "rarity": "common",
       "type": "troop",
       "hasEvolution": true,
+      "hasHero": false,
       "image": "cards/26000049.png"
     },
     {
@@ -103,6 +113,7 @@
       "rarity": "rare",
       "type": "troop",
       "hasEvolution": false,
+      "hasHero": false,
       "image": "cards/26000068.png"
     },
     {
@@ -112,6 +123,7 @@
       "rarity": "rare",
       "type": "troop",
       "hasEvolution": true,
+      "hasHero": false,
       "image": "cards/26000036.png"
     },
     {
@@ -120,7 +132,8 @@
       "elixir": 2,
       "rarity": "common",
       "type": "troop",
-      "hasEvolution": true,
+      "hasEvolution": false,
+      "hasHero": true,
       "image": "cards/26000102.png"
     },
     {
@@ -130,6 +143,7 @@
       "rarity": "rare",
       "type": "building",
       "hasEvolution": false,
+      "hasHero": false,
       "image": "cards/27000004.png"
     },
     {
@@ -139,6 +153,7 @@
       "rarity": "common",
       "type": "troop",
       "hasEvolution": true,
+      "hasHero": false,
       "image": "cards/26000013.png"
     },
     {
@@ -148,6 +163,7 @@
       "rarity": "champion",
       "type": "troop",
       "hasEvolution": false,
+      "hasHero": false,
       "image": "cards/26000103.png"
     },
     {
@@ -156,7 +172,8 @@
       "elixir": 5,
       "rarity": "epic",
       "type": "troop",
-      "hasEvolution": true,
+      "hasEvolution": false,
+      "hasHero": true,
       "image": "cards/26000034.png"
     },
     {
@@ -166,6 +183,7 @@
       "rarity": "common",
       "type": "building",
       "hasEvolution": true,
+      "hasHero": false,
       "image": "cards/27000000.png"
     },
     {
@@ -175,6 +193,7 @@
       "rarity": "epic",
       "type": "troop",
       "hasEvolution": false,
+      "hasHero": false,
       "image": "cards/26000054.png"
     },
     {
@@ -184,6 +203,7 @@
       "rarity": "epic",
       "type": "spell",
       "hasEvolution": false,
+      "hasHero": false,
       "image": "cards/28000013.png"
     },
     {
@@ -192,7 +212,8 @@
       "elixir": 4,
       "rarity": "epic",
       "type": "troop",
-      "hasEvolution": true,
+      "hasEvolution": false,
+      "hasHero": true,
       "image": "cards/26000027.png"
     },
     {
@@ -202,6 +223,7 @@
       "rarity": "rare",
       "type": "troop",
       "hasEvolution": true,
+      "hasHero": false,
       "image": "cards/26000040.png"
     },
     {
@@ -211,6 +233,7 @@
       "rarity": "rare",
       "type": "spell",
       "hasEvolution": false,
+      "hasHero": false,
       "image": "cards/28000014.png"
     },
     {
@@ -220,6 +243,7 @@
       "rarity": "epic",
       "type": "troop",
       "hasEvolution": true,
+      "hasHero": false,
       "image": "cards/26000063.png"
     },
     {
@@ -228,7 +252,8 @@
       "elixir": 7,
       "rarity": "epic",
       "type": "troop",
-      "hasEvolution": false,
+      "hasEvolution": true,
+      "hasHero": false,
       "image": "cards/26000085.png"
     },
     {
@@ -238,6 +263,7 @@
       "rarity": "common",
       "type": "troop",
       "hasEvolution": false,
+      "hasHero": false,
       "image": "cards/26000084.png"
     },
     {
@@ -247,6 +273,7 @@
       "rarity": "legendary",
       "type": "troop",
       "hasEvolution": false,
+      "hasHero": true,
       "image": "cards/26000042.png"
     },
     {
@@ -256,6 +283,7 @@
       "rarity": "common",
       "type": "troop",
       "hasEvolution": true,
+      "hasHero": false,
       "image": "cards/26000043.png"
     },
     {
@@ -265,6 +293,7 @@
       "rarity": "rare",
       "type": "building",
       "hasEvolution": false,
+      "hasHero": false,
       "image": "cards/27000007.png"
     },
     {
@@ -274,6 +303,7 @@
       "rarity": "rare",
       "type": "troop",
       "hasEvolution": false,
+      "hasHero": false,
       "image": "cards/26000067.png"
     },
     {
@@ -283,6 +313,7 @@
       "rarity": "epic",
       "type": "troop",
       "hasEvolution": true,
+      "hasHero": false,
       "image": "cards/26000045.png"
     },
     {
@@ -292,6 +323,7 @@
       "rarity": "common",
       "type": "troop",
       "hasEvolution": false,
+      "hasHero": false,
       "image": "cards/26000031.png"
     },
     {
@@ -301,6 +333,7 @@
       "rarity": "rare",
       "type": "spell",
       "hasEvolution": false,
+      "hasHero": false,
       "image": "cards/28000000.png"
     },
     {
@@ -310,6 +343,7 @@
       "rarity": "common",
       "type": "troop",
       "hasEvolution": true,
+      "hasHero": false,
       "image": "cards/26000064.png"
     },
     {
@@ -319,6 +353,7 @@
       "rarity": "legendary",
       "type": "troop",
       "hasEvolution": false,
+      "hasHero": false,
       "image": "cards/26000061.png"
     },
     {
@@ -328,6 +363,7 @@
       "rarity": "rare",
       "type": "troop",
       "hasEvolution": false,
+      "hasHero": false,
       "image": "cards/26000057.png"
     },
     {
@@ -337,6 +373,7 @@
       "rarity": "epic",
       "type": "spell",
       "hasEvolution": false,
+      "hasHero": false,
       "image": "cards/28000005.png"
     },
     {
@@ -346,6 +383,7 @@
       "rarity": "rare",
       "type": "troop",
       "hasEvolution": true,
+      "hasHero": false,
       "image": "cards/27000010.png"
     },
     {
@@ -354,7 +392,8 @@
       "elixir": 5,
       "rarity": "rare",
       "type": "troop",
-      "hasEvolution": true,
+      "hasEvolution": false,
+      "hasHero": true,
       "image": "cards/26000003.png"
     },
     {
@@ -364,6 +403,7 @@
       "rarity": "epic",
       "type": "troop",
       "hasEvolution": false,
+      "hasHero": false,
       "image": "cards/26000020.png"
     },
     {
@@ -373,6 +413,7 @@
       "rarity": "common",
       "type": "spell",
       "hasEvolution": true,
+      "hasHero": false,
       "image": "cards/28000017.png"
     },
     {
@@ -382,6 +423,7 @@
       "rarity": "epic",
       "type": "spell",
       "hasEvolution": true,
+      "hasHero": false,
       "image": "cards/28000004.png"
     },
     {
@@ -391,6 +433,7 @@
       "rarity": "rare",
       "type": "building",
       "hasEvolution": true,
+      "hasHero": false,
       "image": "cards/27000012.png"
     },
     {
@@ -400,6 +443,7 @@
       "rarity": "epic",
       "type": "spell",
       "hasEvolution": false,
+      "hasHero": false,
       "image": "cards/28000024.png"
     },
     {
@@ -409,6 +453,7 @@
       "rarity": "rare",
       "type": "troop",
       "hasEvolution": false,
+      "hasHero": false,
       "image": "cards/26000095.png"
     },
     {
@@ -418,6 +463,7 @@
       "rarity": "epic",
       "type": "building",
       "hasEvolution": true,
+      "hasHero": false,
       "image": "cards/27000013.png"
     },
     {
@@ -427,6 +473,7 @@
       "rarity": "common",
       "type": "troop",
       "hasEvolution": false,
+      "hasHero": false,
       "image": "cards/26000041.png"
     },
     {
@@ -436,6 +483,7 @@
       "rarity": "epic",
       "type": "troop",
       "hasEvolution": true,
+      "hasHero": false,
       "image": "cards/26000060.png"
     },
     {
@@ -445,6 +493,7 @@
       "rarity": "rare",
       "type": "building",
       "hasEvolution": false,
+      "hasHero": false,
       "image": "cards/27000001.png"
     },
     {
@@ -454,6 +503,7 @@
       "rarity": "legendary",
       "type": "troop",
       "hasEvolution": false,
+      "hasHero": false,
       "image": "cards/26000096.png"
     },
     {
@@ -462,7 +512,8 @@
       "elixir": 2,
       "rarity": "common",
       "type": "troop",
-      "hasEvolution": true,
+      "hasEvolution": false,
+      "hasHero": true,
       "image": "cards/26000002.png"
     },
     {
@@ -472,6 +523,7 @@
       "rarity": "champion",
       "type": "troop",
       "hasEvolution": false,
+      "hasHero": false,
       "image": "cards/26000099.png"
     },
     {
@@ -481,6 +533,7 @@
       "rarity": "champion",
       "type": "troop",
       "hasEvolution": false,
+      "hasHero": false,
       "image": "cards/26000074.png"
     },
     {
@@ -490,6 +543,7 @@
       "rarity": "epic",
       "type": "troop",
       "hasEvolution": false,
+      "hasHero": false,
       "image": "cards/26000009.png"
     },
     {
@@ -499,6 +553,7 @@
       "rarity": "legendary",
       "type": "spell",
       "hasEvolution": false,
+      "hasHero": false,
       "image": "cards/28000010.png"
     },
     {
@@ -508,6 +563,7 @@
       "rarity": "epic",
       "type": "troop",
       "hasEvolution": false,
+      "hasHero": false,
       "image": "cards/26000025.png"
     },
     {
@@ -517,6 +573,7 @@
       "rarity": "rare",
       "type": "troop",
       "hasEvolution": false,
+      "hasHero": false,
       "image": "cards/28000016.png"
     },
     {
@@ -526,6 +583,7 @@
       "rarity": "rare",
       "type": "troop",
       "hasEvolution": false,
+      "hasHero": false,
       "image": "cards/26000021.png"
     },
     {
@@ -535,6 +593,7 @@
       "rarity": "epic",
       "type": "troop",
       "hasEvolution": true,
+      "hasHero": false,
       "image": "cards/26000044.png"
     },
     {
@@ -543,7 +602,8 @@
       "elixir": 2,
       "rarity": "rare",
       "type": "troop",
-      "hasEvolution": true,
+      "hasEvolution": false,
+      "hasHero": true,
       "image": "cards/26000038.png"
     },
     {
@@ -553,6 +613,7 @@
       "rarity": "common",
       "type": "troop",
       "hasEvolution": true,
+      "hasHero": false,
       "image": "cards/26000030.png"
     },
     {
@@ -561,7 +622,8 @@
       "elixir": 3,
       "rarity": "legendary",
       "type": "troop",
-      "hasEvolution": true,
+      "hasEvolution": false,
+      "hasHero": true,
       "image": "cards/26000023.png"
     },
     {
@@ -571,6 +633,7 @@
       "rarity": "legendary",
       "type": "troop",
       "hasEvolution": true,
+      "hasHero": false,
       "image": "cards/26000037.png"
     },
     {
@@ -580,6 +643,7 @@
       "rarity": "rare",
       "type": "building",
       "hasEvolution": false,
+      "hasHero": false,
       "image": "cards/27000003.png"
     },
     {
@@ -589,6 +653,7 @@
       "rarity": "common",
       "type": "troop",
       "hasEvolution": true,
+      "hasHero": true,
       "image": "cards/26000000.png"
     },
     {
@@ -598,6 +663,7 @@
       "rarity": "legendary",
       "type": "troop",
       "hasEvolution": false,
+      "hasHero": false,
       "image": "cards/26000029.png"
     },
     {
@@ -607,6 +673,7 @@
       "rarity": "epic",
       "type": "spell",
       "hasEvolution": false,
+      "hasHero": false,
       "image": "cards/28000007.png"
     },
     {
@@ -616,6 +683,7 @@
       "rarity": "champion",
       "type": "troop",
       "hasEvolution": false,
+      "hasHero": false,
       "image": "cards/26000093.png"
     },
     {
@@ -625,6 +693,7 @@
       "rarity": "legendary",
       "type": "troop",
       "hasEvolution": true,
+      "hasHero": false,
       "image": "cards/26000035.png"
     },
     {
@@ -633,7 +702,8 @@
       "elixir": 4,
       "rarity": "legendary",
       "type": "troop",
-      "hasEvolution": true,
+      "hasEvolution": false,
+      "hasHero": true,
       "image": "cards/26000062.png"
     },
     {
@@ -643,6 +713,7 @@
       "rarity": "legendary",
       "type": "troop",
       "hasEvolution": true,
+      "hasHero": false,
       "image": "cards/26000055.png"
     },
     {
@@ -651,7 +722,8 @@
       "elixir": 3,
       "rarity": "rare",
       "type": "troop",
-      "hasEvolution": true,
+      "hasEvolution": false,
+      "hasHero": true,
       "image": "cards/26000039.png"
     },
     {
@@ -661,6 +733,7 @@
       "rarity": "champion",
       "type": "troop",
       "hasEvolution": false,
+      "hasHero": false,
       "image": "cards/26000065.png"
     },
     {
@@ -670,6 +743,7 @@
       "rarity": "legendary",
       "type": "troop",
       "hasEvolution": false,
+      "hasHero": false,
       "image": "cards/26000032.png"
     },
     {
@@ -678,7 +752,8 @@
       "elixir": 4,
       "rarity": "rare",
       "type": "troop",
-      "hasEvolution": true,
+      "hasEvolution": false,
+      "hasHero": true,
       "image": "cards/26000018.png"
     },
     {
@@ -688,6 +763,7 @@
       "rarity": "rare",
       "type": "troop",
       "hasEvolution": false,
+      "hasHero": false,
       "image": "cards/26000107.png"
     },
     {
@@ -697,6 +773,7 @@
       "rarity": "common",
       "type": "troop",
       "hasEvolution": true,
+      "hasHero": false,
       "image": "cards/26000022.png"
     },
     {
@@ -706,6 +783,7 @@
       "rarity": "common",
       "type": "troop",
       "hasEvolution": false,
+      "hasHero": false,
       "image": "cards/26000005.png"
     },
     {
@@ -715,6 +793,7 @@
       "rarity": "epic",
       "type": "spell",
       "hasEvolution": false,
+      "hasHero": false,
       "image": "cards/28000006.png"
     },
     {
@@ -724,6 +803,7 @@
       "rarity": "champion",
       "type": "troop",
       "hasEvolution": false,
+      "hasHero": false,
       "image": "cards/26000077.png"
     },
     {
@@ -733,6 +813,7 @@
       "rarity": "common",
       "type": "building",
       "hasEvolution": true,
+      "hasHero": false,
       "image": "cards/27000002.png"
     },
     {
@@ -742,6 +823,7 @@
       "rarity": "legendary",
       "type": "troop",
       "hasEvolution": false,
+      "hasHero": false,
       "image": "cards/26000083.png"
     },
     {
@@ -751,6 +833,7 @@
       "rarity": "rare",
       "type": "troop",
       "hasEvolution": true,
+      "hasHero": true,
       "image": "cards/26000014.png"
     },
     {
@@ -760,6 +843,7 @@
       "rarity": "legendary",
       "type": "troop",
       "hasEvolution": false,
+      "hasHero": false,
       "image": "cards/26000048.png"
     },
     {
@@ -769,6 +853,7 @@
       "rarity": "epic",
       "type": "troop",
       "hasEvolution": true,
+      "hasHero": false,
       "image": "cards/26000004.png"
     },
     {
@@ -778,6 +863,7 @@
       "rarity": "legendary",
       "type": "troop",
       "hasEvolution": false,
+      "hasHero": false,
       "image": "cards/26000087.png"
     },
     {
@@ -787,6 +873,7 @@
       "rarity": "epic",
       "type": "spell",
       "hasEvolution": false,
+      "hasHero": false,
       "image": "cards/28000009.png"
     },
     {
@@ -796,6 +883,7 @@
       "rarity": "epic",
       "type": "troop",
       "hasEvolution": false,
+      "hasHero": false,
       "image": "cards/26000016.png"
     },
     {
@@ -805,6 +893,7 @@
       "rarity": "legendary",
       "type": "troop",
       "hasEvolution": true,
+      "hasHero": false,
       "image": "cards/26000026.png"
     },
     {
@@ -814,6 +903,7 @@
       "rarity": "epic",
       "type": "spell",
       "hasEvolution": false,
+      "hasHero": false,
       "image": "cards/28000002.png"
     },
     {
@@ -823,6 +913,7 @@
       "rarity": "legendary",
       "type": "troop",
       "hasEvolution": false,
+      "hasHero": false,
       "image": "cards/26000051.png"
     },
     {
@@ -832,6 +923,7 @@
       "rarity": "common",
       "type": "troop",
       "hasEvolution": false,
+      "hasHero": false,
       "image": "cards/26000053.png"
     },
     {
@@ -841,6 +933,7 @@
       "rarity": "rare",
       "type": "spell",
       "hasEvolution": false,
+      "hasHero": false,
       "image": "cards/28000003.png"
     },
     {
@@ -850,6 +943,7 @@
       "rarity": "legendary",
       "type": "troop",
       "hasEvolution": false,
+      "hasHero": false,
       "image": "cards/26000106.png"
     },
     {
@@ -859,6 +953,7 @@
       "rarity": "common",
       "type": "spell",
       "hasEvolution": false,
+      "hasHero": false,
       "image": "cards/28000018.png"
     },
     {
@@ -868,6 +963,7 @@
       "rarity": "legendary",
       "type": "troop",
       "hasEvolution": true,
+      "hasHero": false,
       "image": "cards/26000050.png"
     },
     {
@@ -877,6 +973,7 @@
       "rarity": "common",
       "type": "troop",
       "hasEvolution": true,
+      "hasHero": false,
       "image": "cards/26000024.png"
     },
     {
@@ -886,6 +983,7 @@
       "rarity": "rare",
       "type": "troop",
       "hasEvolution": true,
+      "hasHero": false,
       "image": "cards/26000059.png"
     },
     {
@@ -895,6 +993,7 @@
       "rarity": "common",
       "type": "troop",
       "hasEvolution": true,
+      "hasHero": false,
       "image": "cards/26000047.png"
     },
     {
@@ -904,6 +1003,7 @@
       "rarity": "epic",
       "type": "troop",
       "hasEvolution": false,
+      "hasHero": false,
       "image": "cards/26000101.png"
     },
     {
@@ -913,6 +1013,7 @@
       "rarity": "epic",
       "type": "troop",
       "hasEvolution": true,
+      "hasHero": false,
       "image": "cards/26000012.png"
     },
     {
@@ -922,6 +1023,7 @@
       "rarity": "common",
       "type": "troop",
       "hasEvolution": true,
+      "hasHero": false,
       "image": "cards/26000056.png"
     },
     {
@@ -931,6 +1033,7 @@
       "rarity": "common",
       "type": "troop",
       "hasEvolution": false,
+      "hasHero": false,
       "image": "cards/26000080.png"
     },
     {
@@ -940,6 +1043,7 @@
       "rarity": "champion",
       "type": "troop",
       "hasEvolution": false,
+      "hasHero": false,
       "image": "cards/26000069.png"
     },
     {
@@ -949,6 +1053,7 @@
       "rarity": "common",
       "type": "troop",
       "hasEvolution": true,
+      "hasHero": false,
       "image": "cards/26000010.png"
     },
     {
@@ -958,6 +1063,7 @@
       "rarity": "legendary",
       "type": "troop",
       "hasEvolution": false,
+      "hasHero": false,
       "image": "cards/26000033.png"
     },
     {
@@ -967,6 +1073,7 @@
       "rarity": "common",
       "type": "troop",
       "hasEvolution": false,
+      "hasHero": false,
       "image": "cards/26000019.png"
     },
     {
@@ -976,6 +1083,7 @@
       "rarity": "legendary",
       "type": "troop",
       "hasEvolution": false,
+      "hasHero": false,
       "image": "cards/28000025.png"
     },
     {
@@ -985,6 +1093,7 @@
       "rarity": "rare",
       "type": "troop",
       "hasEvolution": false,
+      "hasHero": false,
       "image": "cards/26000097.png"
     },
     {
@@ -994,6 +1103,7 @@
       "rarity": "common",
       "type": "building",
       "hasEvolution": true,
+      "hasHero": false,
       "image": "cards/27000006.png"
     },
     {
@@ -1003,6 +1113,7 @@
       "rarity": "legendary",
       "type": "spell",
       "hasEvolution": false,
+      "hasHero": false,
       "image": "cards/28000011.png"
     },
     {
@@ -1012,6 +1123,7 @@
       "rarity": "rare",
       "type": "troop",
       "hasEvolution": false,
+      "hasHero": false,
       "image": "cards/26000028.png"
     },
     {
@@ -1020,7 +1132,8 @@
       "elixir": 3,
       "rarity": "rare",
       "type": "building",
-      "hasEvolution": true,
+      "hasEvolution": false,
+      "hasHero": true,
       "image": "cards/27000009.png"
     },
     {
@@ -1030,6 +1143,7 @@
       "rarity": "epic",
       "type": "spell",
       "hasEvolution": false,
+      "hasHero": false,
       "image": "cards/28000012.png"
     },
     {
@@ -1039,6 +1153,7 @@
       "rarity": "rare",
       "type": "troop",
       "hasEvolution": true,
+      "hasHero": true,
       "image": "cards/26000011.png"
     },
     {
@@ -1048,6 +1163,7 @@
       "rarity": "epic",
       "type": "spell",
       "hasEvolution": false,
+      "hasHero": false,
       "image": "cards/28000026.png"
     },
     {
@@ -1057,6 +1173,7 @@
       "rarity": "epic",
       "type": "spell",
       "hasEvolution": false,
+      "hasHero": false,
       "image": "cards/28000023.png"
     },
     {
@@ -1066,6 +1183,7 @@
       "rarity": "epic",
       "type": "troop",
       "hasEvolution": true,
+      "hasHero": false,
       "image": "cards/26000058.png"
     },
     {
@@ -1075,6 +1193,7 @@
       "rarity": "epic",
       "type": "troop",
       "hasEvolution": true,
+      "hasHero": false,
       "image": "cards/26000007.png"
     },
     {
@@ -1084,6 +1203,7 @@
       "rarity": "rare",
       "type": "troop",
       "hasEvolution": true,
+      "hasHero": true,
       "image": "cards/26000017.png"
     },
     {
@@ -1093,6 +1213,7 @@
       "rarity": "epic",
       "type": "building",
       "hasEvolution": false,
+      "hasHero": false,
       "image": "cards/27000008.png"
     },
     {
@@ -1102,6 +1223,7 @@
       "rarity": "common",
       "type": "spell",
       "hasEvolution": true,
+      "hasHero": false,
       "image": "cards/28000008.png"
     },
     {
@@ -1111,6 +1233,7 @@
       "rarity": "rare",
       "type": "troop",
       "hasEvolution": false,
+      "hasHero": false,
       "image": "cards/26000052.png"
     }
   ],

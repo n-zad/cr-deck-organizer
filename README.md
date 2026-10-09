@@ -12,6 +12,8 @@ The current version is **1.0.5**. See [CHANGELOG.md](CHANGELOG.md) for what chan
 
 A Progressive Web App (PWA) is a website that can be installed like a regular app. It gets its own icon and window, and it keeps working offline once loaded. Install it from the browser menu ("Add to Home screen" or "Install app").
 
+PWA installation tends to work better using Chrome on Android or Safari on IOS, but other mobile browsers should be able to install a PWA to your device too.
+
 Installing through Samsung Internet may warn that the app "was built for an older version of Android." Samsung packages PWAs with an outdated `targetSdkVersion`, so this happens to any PWA. Install from Chrome instead, or tap **More details → Install anyway** to continue with Samsung Internet.
 
 ---
@@ -80,6 +82,8 @@ npm run scrape-cards   # refresh src/data/cards.json and public/cards/
 
 The workflow in `.github/workflows/deploy.yml` runs tests, builds, and publishes `dist/`. In the GitHub repo: **Settings → Pages → Source → GitHub Actions**. The build sets `BASE_PATH` to `/<repo-name>/`, which matches a project site at `https://<user>.github.io/<repo-name>/`.
 
+`.github/workflows/scrape-cards.yml` refreshes the card catalog on the first Wednesday of each month (and on demand from the Actions tab). Runners have no fixed IP, so it calls the API through RoyaleAPI's proxy: create a developer key that allowlists `45.79.218.79` and save it as the `CLASH_ROYALE_API_TOKEN` repository secret. When the catalog changes, the workflow tests it, commits to `main`, and starts the Pages deploy.
+
 ## Card data and images
 
 Two sources cover what this app needs: official IDs and art for share links, plus elixir/rarity/type for the picker UI.
@@ -107,9 +111,11 @@ A developer token is required and is locked to specific IPs, so this is only use
 
 Community-maintained JSON joined to official cards by `id`. Used for elixir cost, rarity, type, and evolution flags that the official `/cards` payload does not always include. No card art here.
 
+The ClashStrategic GitHub repo was taken down in August 2026. jsDelivr still serves a frozen copy (missing cards such as Minion Giant), so the scrape treats it as a fallback only. Hero forms come from the hand-maintained list in `src/lib/heroes.ts`.
+
 ---
 
-This project was built with [Cursor](https://cursor.com) and AI coding agents.
+This project was built with [Cursor](https://cursor.com) and AI coding agents (Grok 4.7 and Claude Opus 5.5).
 
 ---
 
