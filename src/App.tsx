@@ -1,5 +1,6 @@
 import { useEffect } from 'react';
 import { FanContentNotice } from './components/FanContentNotice.tsx';
+import { UpdatePrompt } from './components/UpdatePrompt.tsx';
 import { HomePage } from './pages/HomePage.tsx';
 import { DeckEditorPage } from './pages/DeckEditorPage.tsx';
 import { FoldersPage } from './pages/FoldersPage.tsx';
@@ -42,6 +43,7 @@ export default function App() {
           <FanContentNotice />
         </div>
       </footer>
+      <UpdatePrompt />
     </div>
   );
 }
