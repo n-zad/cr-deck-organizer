@@ -1,5 +1,11 @@
 # Changelog
 
+## v1.0.6 — 2026-10-09
+
+- Fixed card labels: Goblins now has only a hero form, Electro Giant has its new evolution, and Electro Wizard has its new hero form.
+- The card scrape script now gets tower troops from the official API, warns about possible new heroes, and can run through RoyaleAPI's fixed-IP proxy. Clash Strategic data is only a fallback now that its repo is gone.
+- Added a GitHub workflow that refreshes the card catalog on the first Wednesday of each month (or on demand) and redeploys when cards change.
+
 ## v1.0.5 — 2026-10-07
 
 - Updated the maskable and Apple touch icons.
