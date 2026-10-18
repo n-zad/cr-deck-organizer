@@ -5,12 +5,14 @@ export type FolderFilter = 'all' | 'unfiled' | string;
 
 type FolderSidebarProps = {
   folders: Folder[];
+  counts: ReadonlyMap<FolderFilter, number>;
   selected: FolderFilter;
   onSelect: (filter: FolderFilter) => void;
   onManage: () => void;
 };
 
-export function FolderSidebar({ folders, selected, onSelect, onManage }: FolderSidebarProps) {
+export function FolderSidebar({ folders, counts, selected, onSelect, onManage }: FolderSidebarProps) {
+  const label = (name: string, filter: FolderFilter) => `${name} (${counts.get(filter) ?? 0})`;
   return (
     <aside className="flex flex-col gap-3">
       <div className="flex items-center justify-between gap-2">
@@ -23,10 +25,10 @@ export function FolderSidebar({ folders, selected, onSelect, onManage }: FolderS
       </div>
       <nav className="flex flex-wrap gap-2">
         <FolderChip active={selected === 'all'} onClick={() => onSelect('all')}>
-          All decks
+          {label('All decks', 'all')}
         </FolderChip>
         <FolderChip active={selected === 'unfiled'} onClick={() => onSelect('unfiled')}>
-          Unfiled
+          {label('Unfiled', 'unfiled')}
         </FolderChip>
         {folders.map((folder) => (
           <FolderChip
@@ -34,7 +36,7 @@ export function FolderSidebar({ folders, selected, onSelect, onManage }: FolderS
             active={selected === folder.id}
             onClick={() => onSelect(folder.id)}
           >
-            {folder.name}
+            {label(folder.name, folder.id)}
           </FolderChip>
         ))}
       </nav>

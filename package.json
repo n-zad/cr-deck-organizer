@@ -1,7 +1,7 @@
 {
   "name": "cr-deck-organizer",
   "private": true,
-  "version": "1.0.0",
+  "version": "1.0.7",
   "type": "module",
   "description": "Progressive Web App for saving and organizing Clash Royale decks in the browser.",
   "engines": {

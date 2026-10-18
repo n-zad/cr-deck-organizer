@@ -2,7 +2,7 @@ import { averageElixir } from './deck.ts';
 import { CARD_RARITIES, type CatalogCard, type Deck } from './types.ts';
 
 export type CardSortKey = 'elixir' | 'rarity' | 'name';
-export type DeckSortKey = 'updated' | 'name' | 'elixir';
+export type DeckSortKey = 'updated' | 'created' | 'name' | 'elixir';
 
 const rarityRank = new Map(CARD_RARITIES.map((rarity, index) => [rarity, index]));
 
@@ -52,6 +52,11 @@ export function compareDecks(
 ): number {
   const dir = reverse ? -1 : 1;
   if (key === 'updated') {
+    return b.updatedAt.localeCompare(a.updatedAt) * dir;
+  }
+  if (key === 'created') {
+    const byCreated = b.createdAt.localeCompare(a.createdAt);
+    if (byCreated !== 0) return byCreated * dir;
     return b.updatedAt.localeCompare(a.updatedAt) * dir;
   }
   if (key === 'name') {

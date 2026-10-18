@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { CardPicker } from '../components/CardPicker.tsx';
 import { DeckSlots } from '../components/DeckSlots.tsx';
 import { Modal } from '../components/Modal.tsx';
@@ -74,10 +74,7 @@ export function DeckEditorPage({ deckId }: DeckEditorPageProps) {
     return () => window.clearTimeout(timer);
   }, [savedFlash]);
 
-  const folders = useMemo(
-    () => state.folders.slice().sort((a, b) => a.name.localeCompare(b.name)),
-    [state.folders],
-  );
+  const folders = state.folders;
 
   function placeCard(card: CatalogCard): void {
     const existing = deck.cardIds.indexOf(card.id);

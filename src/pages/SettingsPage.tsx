@@ -127,6 +127,22 @@ export function SettingsPage() {
             </p>
             <Button onClick={() => navigate('/settings/variants')}>Choose cards</Button>
           </div>
+          <label className="flex flex-col gap-2">
+            <span className="text-sm font-semibold text-cream-50">New evolutions and heroes</span>
+            <span className="text-xs leading-5 text-cream-400">
+              How forms added to the app in a later update start out while this option is on.
+            </span>
+            <select
+              value={settings.newVariantsOwned ? 'owned' : 'unowned'}
+              onChange={(event) =>
+                store.updateSettings({ newVariantsOwned: event.target.value === 'owned' })
+              }
+              className="w-full rounded-2xl border border-white/10 bg-navy-900 px-3 py-3 text-sm outline-none focus:border-gold-400/50"
+            >
+              <option value="unowned">Not owned</option>
+              <option value="owned">Owned</option>
+            </select>
+          </label>
         </div>
       </section>
     </div>

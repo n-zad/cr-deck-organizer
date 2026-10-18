@@ -19,6 +19,54 @@ describe('appStore', () => {
     expect(store.getState().decks.find((item) => item.id === deck.id)?.folderId).toBeNull();
   });
 
+  it('appends new folders and reorders them manually', () => {
+    const store = createAppStore(new MemoryStorage());
+    const zeta = store.createFolder('Zeta');
+    const alpha = store.createFolder('Alpha');
+    const mid = store.createFolder('Mid');
+    const order = () => store.getState().folders.map((folder) => folder.name);
+    expect(order()).toEqual(['Zeta', 'Alpha', 'Mid']);
+    store.moveFolder(mid.id, 0);
+    expect(order()).toEqual(['Mid', 'Zeta', 'Alpha']);
+    store.moveFolder(mid.id, 99);
+    expect(order()).toEqual(['Zeta', 'Alpha', 'Mid']);
+    store.sortFoldersByName();
+    expect(order()).toEqual(['Alpha', 'Mid', 'Zeta']);
+    store.deleteFolder(alpha.id);
+    expect(store.getState().folders.map((folder) => folder.position)).toEqual([0, 1]);
+    expect(store.getState().folders[1]?.id).toBe(zeta.id);
+  });
+
+  it('keeps the modified time when a deck is saved without changes', () => {
+    const store = createAppStore(new MemoryStorage());
+    const old = '2026-01-01T00:00:00.000Z';
+    const deck = { ...newDraftDeck(), createdAt: old, updatedAt: old };
+    store.replaceState({ ...store.getState(), decks: [deck] });
+    expect(store.saveDeck({ ...deck }).updatedAt).toBe(old);
+    expect(store.getState().decks[0]?.updatedAt).toBe(old);
+    const renamed = store.saveDeck({ ...deck, name: 'Hog Cycle' });
+    expect(renamed.updatedAt).not.toBe(old);
+    expect(renamed.createdAt).toBe(old);
+    expect(store.getState().decks[0]?.name).toBe('Hog Cycle');
+  });
+
+  it('records the catalog forms on first load and marks later additions unowned', () => {
+    const storage = new MemoryStorage();
+    const first = createAppStore(storage);
+    const known = first.getState().settings.knownEvolutionIds ?? [];
+    expect(known.length).toBeGreaterThan(0);
+    expect(first.getState().settings.disabledEvolutionIds).toEqual([]);
+
+    const knight = 26000000;
+    first.updateSettings({
+      trackOwnedVariants: true,
+      knownEvolutionIds: known.filter((id) => id !== knight),
+    });
+    const second = createAppStore(storage);
+    expect(second.getState().settings.knownEvolutionIds).toContain(knight);
+    expect(second.getState().settings.disabledEvolutionIds).toEqual([knight]);
+  });
+
   it('fills a deck from loose card names and warns about skipped words', () => {
     const store = createAppStore(new MemoryStorage());
     const result = store.applyDeckText(

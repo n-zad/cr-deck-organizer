@@ -36,6 +36,7 @@ type CardPortraitProps = {
   size?: Size;
   widthPx?: number;
   dimmed?: boolean;
+  grayed?: boolean;
   frame?: CardFrame;
   warning?: boolean;
   neon?: boolean;
@@ -55,6 +56,8 @@ type CardPortraitProps = {
   onPointerMove?: PointerEventHandler<HTMLElement>;
   onPointerUp?: PointerEventHandler<HTMLElement>;
   onPointerCancel?: PointerEventHandler<HTMLElement>;
+  /** When false, touches on a pointer-draggable portrait scroll the page instead. */
+  touchDrag?: boolean;
 };
 
 function sizeFromWidth(widthPx: number): Size {
@@ -88,6 +91,7 @@ export function CardPortrait({
   size = 'sm',
   widthPx,
   dimmed = false,
+  grayed = false,
   frame = 'none',
   warning = false,
   neon = false,
@@ -107,14 +111,17 @@ export function CardPortrait({
   onPointerMove,
   onPointerUp,
   onPointerCancel,
+  touchDrag = true,
 }: CardPortraitProps) {
   const resolvedSize = widthPx != null ? sizeFromWidth(widthPx) : size;
   const className = [
     'relative block overflow-visible transition',
     widthPx == null ? sizeClass[size] : '',
     dimmed ? 'opacity-35' : '',
+    grayed ? 'opacity-50 grayscale' : '',
     onClick ? 'hover:-translate-y-0.5 hover:brightness-110' : '',
-    draggable || onPointerDown ? 'cursor-grab touch-none active:cursor-grabbing' : '',
+    draggable || onPointerDown ? 'cursor-grab active:cursor-grabbing' : '',
+    (draggable || onPointerDown) && touchDrag ? 'touch-none' : '',
   ].join(' ');
 
   const imageClass = [

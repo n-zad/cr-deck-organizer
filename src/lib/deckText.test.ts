@@ -125,6 +125,20 @@ describe('parseDeckText', () => {
     expect(result.warning).toBe('Skipped a duplicate Knight.');
   });
 
+  it('keeps a name typed in order together even when each word is also a card', () => {
+    expect(names(parsed('barb barrel').cards)).toEqual(['Barbarian Barrel']);
+    expect(names(parsed('barbarian barrel').cards)).toEqual(['Barbarian Barrel']);
+    expect(names(parsed('goblin barrel').cards)).toEqual(['Goblin Barrel']);
+    expect(names(parsed('goblin cage').cards)).toEqual(['Goblin Cage']);
+    expect(names(parsed('giant snowball').cards)).toEqual(['Giant Snowball']);
+    expect(names(parsed('giant skeleton').cards)).toEqual(['Giant Skeleton']);
+    expect(names(parsed('hog barb barrel knight').cards)).toEqual([
+      'Hog Rider',
+      'Barbarian Barrel',
+      'Knight',
+    ]);
+  });
+
   it('prefers mini pekka over pekka when both words are present', () => {
     expect(names(parsed('mini pekka').cards)).toEqual(['Mini P.E.K.K.A']);
     expect(names(parsed('pekka').cards)).toEqual(['P.E.K.K.A']);

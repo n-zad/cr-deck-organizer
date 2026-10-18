@@ -12,6 +12,8 @@ import {
   normalizeCardSlots,
   normalizeEvolutionSlots,
   normalizeHeroSlots,
+  sortFoldersByName,
+  withFolderPositions,
 } from './deck.ts';
 
 export function emptyState(): AppState {
@@ -39,9 +41,11 @@ export function saveState(state: AppState, storage: Storage): void {
 
 export function parseState(value: unknown): AppState {
   if (!isRecord(value)) return emptyState();
-  const folders = Array.isArray(value.folders)
-    ? value.folders.map(parseFolder).filter((folder): folder is Folder => folder != null)
-    : [];
+  const rawFolders = Array.isArray(value.folders) ? value.folders : [];
+  const folders = orderFolders(
+    uniqueById(rawFolders.map(parseFolder).filter((folder): folder is Folder => folder != null)),
+    rawFolders.every((folder) => isRecord(folder) && typeof folder.position === 'number'),
+  );
   const decks = Array.isArray(value.decks)
     ? value.decks.map(parseDeck).filter((deck): deck is Deck => deck != null)
     : [];
@@ -49,7 +53,7 @@ export function parseState(value: unknown): AppState {
 
   return {
     schemaVersion: APP_SCHEMA_VERSION,
-    folders: uniqueById(folders),
+    folders,
     decks: uniqueById(decks).map((deck) =>
       deck.folderId && !folderIds.has(deck.folderId) ? { ...deck, folderId: null } : deck,
     ),
@@ -64,7 +68,14 @@ function parseFolder(value: unknown): Folder | null {
   return createFolder(value.name, {
     id: value.id,
     createdAt: typeof value.createdAt === 'string' ? value.createdAt : undefined,
+    position: typeof value.position === 'number' ? value.position : undefined,
   });
+}
+
+/** Data saved before manual ordering has no positions, so it keeps the old A–Z order. */
+function orderFolders(folders: Folder[], positioned: boolean): Folder[] {
+  if (!positioned) return sortFoldersByName(folders);
+  return withFolderPositions(folders.slice().sort((a, b) => a.position - b.position));
 }
 
 function parseDeck(value: unknown): Deck | null {

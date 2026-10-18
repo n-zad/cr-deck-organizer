@@ -72,6 +72,27 @@ describe('storage', () => {
     expect(state.folders).toHaveLength(1);
   });
 
+  it('keeps saved folder positions and sorts older folders without positions A–Z', () => {
+    const positioned = parseState({
+      folders: [
+        { id: 'b', name: 'Beta', position: 1 },
+        { id: 'z', name: 'Zeta', position: 0 },
+        { id: 'a', name: 'Alpha', position: 2 },
+      ],
+    });
+    expect(positioned.folders.map((folder) => folder.name)).toEqual(['Zeta', 'Beta', 'Alpha']);
+    expect(positioned.folders.map((folder) => folder.position)).toEqual([0, 1, 2]);
+
+    const legacy = parseState({
+      folders: [
+        { id: 'z', name: 'Zeta' },
+        { id: 'a', name: 'Alpha' },
+      ],
+    });
+    expect(legacy.folders.map((folder) => folder.name)).toEqual(['Alpha', 'Zeta']);
+    expect(legacy.folders.map((folder) => folder.position)).toEqual([0, 1]);
+  });
+
   it('ignores malformed records and duplicate ids', () => {
     const state = parseState({
       folders: [

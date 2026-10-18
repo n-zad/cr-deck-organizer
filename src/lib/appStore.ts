@@ -1,4 +1,4 @@
-import { getCard } from './catalog.ts';
+import { catalog, getCard } from './catalog.ts';
 import { clampName, createId, nowIso } from './ids.ts';
 import {
   canToggleForms,
@@ -8,13 +8,16 @@ import {
   filledCardIds,
   firstEmptySlot,
   fitDeckForms,
+  moveFolderTo,
   normalizeEvolutionSlots,
   shareBlockReason,
   slotRole,
+  sortFoldersByName,
   swapDeckSlots,
+  withFolderPositions,
   withUpdatedTimestamp,
 } from './deck.ts';
-import { ownedFormsForSettings } from './settings.ts';
+import { ownedFormsForSettings, reconcileKnownVariants } from './settings.ts';
 import { parseDeckText, placeParsedCards } from './deckText.ts';
 import { parseShareLink } from './shareLink.ts';
 import { emptyState, loadState, saveState } from './storage.ts';
@@ -36,6 +39,8 @@ export type AppStore = {
   createFolder: (name: string) => Folder;
   renameFolder: (id: string, name: string) => void;
   deleteFolder: (id: string) => void;
+  moveFolder: (id: string, toIndex: number) => void;
+  sortFoldersByName: () => void;
   saveDeck: (deck: Deck) => Deck;
   deleteDeck: (id: string) => void;
   moveDeck: (deckId: string, folderId: string | null) => void;
@@ -53,8 +58,15 @@ export type AppStore = {
   pruneEmptyDecks: () => void;
 };
 
+function withKnownVariants(current: AppState): AppState {
+  const settings = reconcileKnownVariants(current.settings, catalog.cards);
+  return settings === current.settings ? current : { ...current, settings };
+}
+
 export function createAppStore(storage: Storage): AppStore {
-  let state = loadState(storage);
+  const loaded = loadState(storage);
+  let state = withKnownVariants(loaded);
+  if (state !== loaded) saveState(state, storage);
   const listeners = new Set<() => void>();
 
   function emit(next: AppState): void {
@@ -170,12 +182,21 @@ export function createAppStore(storage: Storage): AppStore {
       };
     },
     replaceState(next) {
-      emit(next);
+      emit(withKnownVariants(next));
     },
     createFolder(name) {
-      const folder = createFolder(name);
-      update((current) => ({ ...current, folders: [...current.folders, folder] }));
+      const folder = createFolder(name, { position: state.folders.length });
+      update((current) => ({
+        ...current,
+        folders: withFolderPositions([...current.folders, folder]),
+      }));
       return folder;
+    },
+    moveFolder(id, toIndex) {
+      update((current) => ({ ...current, folders: moveFolderTo(current.folders, id, toIndex) }));
+    },
+    sortFoldersByName() {
+      update((current) => ({ ...current, folders: sortFoldersByName(current.folders) }));
     },
     renameFolder(id, name) {
       const nextName = clampName(name, 'Folder');
@@ -189,17 +210,17 @@ export function createAppStore(storage: Storage): AppStore {
     deleteFolder(id) {
       update((current) => ({
         ...current,
-        folders: current.folders.filter((folder) => folder.id !== id),
+        folders: withFolderPositions(current.folders.filter((folder) => folder.id !== id)),
         decks: current.decks.map((deck) =>
           deck.folderId === id ? withUpdatedTimestamp({ ...deck, folderId: null }) : deck,
         ),
       }));
     },
     saveDeck(deck) {
-      const saved = withUpdatedTimestamp({
-        ...deck,
-        name: clampName(deck.name, UNTITLED_DECK_NAME),
-      });
+      const named = { ...deck, name: clampName(deck.name, UNTITLED_DECK_NAME) };
+      const stored = state.decks.find((item) => item.id === deck.id);
+      if (stored && sameDeckContent(stored, named)) return stored;
+      const saved = withUpdatedTimestamp(named);
       update((current) => {
         const index = current.decks.findIndex((item) => item.id === saved.id);
         const decks = [...current.decks];
@@ -292,6 +313,22 @@ export function newDraftDeck(
     createdAt: nowIso(),
     updatedAt: nowIso(),
   });
+}
+
+/** Everything a player can change, so opening a deck without edits keeps its timestamp. */
+function sameDeckContent(a: Deck, b: Deck): boolean {
+  return (
+    a.name === b.name &&
+    a.towerTroopId === b.towerTroopId &&
+    a.folderId === b.folderId &&
+    sameList(a.cardIds, b.cardIds) &&
+    sameList(a.evolutionSlots, b.evolutionSlots) &&
+    sameList(a.heroSlots ?? emptyHeroSlots(), b.heroSlots ?? emptyHeroSlots())
+  );
+}
+
+function sameList<T>(a: readonly T[], b: readonly T[]): boolean {
+  return a.length === b.length && a.every((value, index) => value === b[index]);
 }
 
 export function canShare(deck: Deck): boolean {

@@ -2,6 +2,7 @@ import { describe, expect, it } from 'vitest';
 import {
   defaultSettings,
   parseSettings,
+  reconcileKnownVariants,
   showsImportField,
   withVariantEnabled,
   withVariantsEnabled,
@@ -56,6 +57,62 @@ describe('variant id lists', () => {
     expect(withVariantEnabled([1], 2, false)).toEqual([1, 2]);
     expect(withVariantsEnabled([1], [2, 3], false)).toEqual([1, 2, 3]);
     expect(withVariantsEnabled([1, 2, 3], [2, 3], true)).toEqual([1]);
+  });
+});
+
+describe('reconcileKnownVariants', () => {
+  const cards = [
+    { id: 1, hasEvolution: true, hasHero: false },
+    { id: 2, hasEvolution: true, hasHero: true },
+    { id: 3, hasEvolution: false, hasHero: true },
+  ];
+
+  it('treats new forms as unowned by default and keeps that choice parseable', () => {
+    expect(defaultSettings().newVariantsOwned).toBe(false);
+    expect(parseSettings({}).knownEvolutionIds).toBeNull();
+    expect(parseSettings({ knownHeroIds: [3, 3] }).knownHeroIds).toEqual([3]);
+  });
+
+  it('takes a first snapshot without disabling anything', () => {
+    const settings = { ...defaultSettings(), trackOwnedVariants: true };
+    const next = reconcileKnownVariants(settings, cards);
+    expect(next.knownEvolutionIds).toEqual([1, 2]);
+    expect(next.knownHeroIds).toEqual([2, 3]);
+    expect(next.disabledEvolutionIds).toEqual([]);
+    expect(next.disabledHeroIds).toEqual([]);
+  });
+
+  it('marks forms added later as unowned while tracking is on', () => {
+    const settings = {
+      ...defaultSettings(),
+      trackOwnedVariants: true,
+      disabledHeroIds: [3],
+      knownEvolutionIds: [1],
+      knownHeroIds: [3],
+    };
+    const next = reconcileKnownVariants(settings, cards);
+    expect(next.knownEvolutionIds).toEqual([1, 2]);
+    expect(next.knownHeroIds).toEqual([3, 2]);
+    expect(next.disabledEvolutionIds).toEqual([2]);
+    expect(next.disabledHeroIds).toEqual([3, 2]);
+  });
+
+  it('leaves new forms owned when that is preferred or tracking is off', () => {
+    const base = { ...defaultSettings(), knownEvolutionIds: [1], knownHeroIds: [2, 3] };
+    const owned = reconcileKnownVariants(
+      { ...base, trackOwnedVariants: true, newVariantsOwned: true },
+      cards,
+    );
+    expect(owned.knownEvolutionIds).toEqual([1, 2]);
+    expect(owned.disabledEvolutionIds).toEqual([]);
+    const untracked = reconcileKnownVariants(base, cards);
+    expect(untracked.knownEvolutionIds).toEqual([1, 2]);
+    expect(untracked.disabledEvolutionIds).toEqual([]);
+  });
+
+  it('returns the same object when nothing is new', () => {
+    const settings = { ...defaultSettings(), knownEvolutionIds: [1, 2], knownHeroIds: [2, 3] };
+    expect(reconcileKnownVariants(settings, cards)).toBe(settings);
   });
 });
 

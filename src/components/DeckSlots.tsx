@@ -95,7 +95,8 @@ export function DeckSlots({
         <div>
           <h2 className="text-sm font-semibold tracking-wide text-cream-200 uppercase">Deck</h2>
           <p className="text-xs text-cream-400">
-            Tap a slot, then a card. Drag to rearrange. Tap a selected card to remove.
+            Tap a slot, then a card. Drag to rearrange (on touch screens, select the card first).
+            Tap a selected card to remove.
           </p>
         </div>
         <div className="text-sm text-cream-200">
@@ -161,11 +162,13 @@ export function DeckSlots({
                   neon={neon}
                   evoOff={card ? variantTabOff(settings, card.id, 'evolution') : false}
                   heroOff={card ? variantTabOff(settings, card.id, 'hero') : false}
+                  touchDrag={selected}
                   onPointerDown={
                     id == null
                       ? undefined
                       : (event) => {
                           if (event.button !== 0) return;
+                          if (event.pointerType !== 'mouse' && !selected) return;
                           const img = event.currentTarget.querySelector('img');
                           const box = (img ?? event.currentTarget).getBoundingClientRect();
                           pointerDragRef.current = {

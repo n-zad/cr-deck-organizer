@@ -1,5 +1,16 @@
 # Changelog
 
+## v1.0.7 — 2026-10-18
+
+- The text matcher keeps a multi-word name typed in order together, so "barb barrel", "goblin barrel", "goblin cage", and similar names no longer split into two cards.
+- Folder chips show deck counts, and the deck list shows how many decks match the current folder and search.
+- The selected folder is kept when you open a deck and return to the list.
+- Folders can be reordered on the folder management screen, with a button to sort them A–Z.
+- Added a "Date created" deck sort alongside "Last modified". Opening a deck without changing it no longer counts as an edit.
+- On touch screens, a deck slot only drags once it is selected, so scrolling over the deck no longer accidentally drags cards.
+- Unowned evolutions and heroes are grayed out on the owned-cards page.
+- Evolutions and heroes added in later updates start as unowned, with a setting to change that.
+
 ## v1.0.6 — 2026-10-09
 
 - Fixed card labels: Goblins now has only a hero form, Electro Giant has its new evolution, and Electro Wizard has its new hero form.

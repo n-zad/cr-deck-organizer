@@ -13,6 +13,9 @@ export function defaultSettings(): UserSettings {
     trackOwnedVariants: false,
     disabledEvolutionIds: [],
     disabledHeroIds: [],
+    newVariantsOwned: false,
+    knownEvolutionIds: null,
+    knownHeroIds: null,
   };
 }
 
@@ -33,6 +36,48 @@ export function parseSettings(value: unknown): UserSettings {
     trackOwnedVariants: value.trackOwnedVariants === true,
     disabledEvolutionIds: parseIdList(value.disabledEvolutionIds),
     disabledHeroIds: parseIdList(value.disabledHeroIds),
+    newVariantsOwned: value.newVariantsOwned === true,
+    knownEvolutionIds: Array.isArray(value.knownEvolutionIds)
+      ? parseIdList(value.knownEvolutionIds)
+      : null,
+    knownHeroIds: Array.isArray(value.knownHeroIds) ? parseIdList(value.knownHeroIds) : null,
+  };
+}
+
+/**
+ * Records evolution and hero forms that joined the catalog since the last visit. While tracking
+ * is on they start unowned unless `newVariantsOwned` is set. The first snapshot disables nothing.
+ */
+export function reconcileKnownVariants(
+  settings: UserSettings,
+  cards: readonly Pick<CatalogCard, 'id' | 'hasEvolution' | 'hasHero'>[],
+): UserSettings {
+  const evolutions = cards.filter((card) => card.hasEvolution).map((card) => card.id);
+  const heroes = cards.filter((card) => card.hasHero).map((card) => card.id);
+  const disableNew = settings.trackOwnedVariants && !settings.newVariantsOwned;
+  const evo = reconcileForm(settings.knownEvolutionIds, settings.disabledEvolutionIds, evolutions, disableNew);
+  const hero = reconcileForm(settings.knownHeroIds, settings.disabledHeroIds, heroes, disableNew);
+  if (!evo && !hero) return settings;
+  return {
+    ...settings,
+    ...(evo && { knownEvolutionIds: evo.known, disabledEvolutionIds: evo.disabled }),
+    ...(hero && { knownHeroIds: hero.known, disabledHeroIds: hero.disabled }),
+  };
+}
+
+function reconcileForm(
+  known: readonly number[] | null,
+  disabled: readonly number[],
+  current: readonly number[],
+  disableNew: boolean,
+): { known: number[]; disabled: number[] } | null {
+  if (known == null) return { known: [...current], disabled: [...disabled] };
+  const seen = new Set(known);
+  const added = current.filter((id) => !seen.has(id));
+  if (added.length === 0) return null;
+  return {
+    known: [...known, ...added],
+    disabled: disableNew ? withVariantsEnabled(disabled, added, false) : [...disabled],
   };
 }
 

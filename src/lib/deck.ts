@@ -42,7 +42,28 @@ export function createFolder(name: string, partial?: Partial<Folder>): Folder {
     id: partial?.id ?? createId(),
     name: clampName(name, 'Folder'),
     createdAt: partial?.createdAt ?? nowIso(),
+    position: partial?.position ?? 0,
   };
+}
+
+export function withFolderPositions(folders: readonly Folder[]): Folder[] {
+  return folders.map((folder, position) =>
+    folder.position === position ? folder : { ...folder, position },
+  );
+}
+
+export function moveFolderTo(folders: readonly Folder[], id: string, toIndex: number): Folder[] {
+  const from = folders.findIndex((folder) => folder.id === id);
+  if (from === -1) return withFolderPositions(folders);
+  const target = Math.max(0, Math.min(folders.length - 1, toIndex));
+  const next = [...folders];
+  const [moved] = next.splice(from, 1);
+  if (moved) next.splice(target, 0, moved);
+  return withFolderPositions(next);
+}
+
+export function sortFoldersByName(folders: readonly Folder[]): Folder[] {
+  return withFolderPositions(folders.slice().sort((a, b) => a.name.localeCompare(b.name)));
 }
 
 export function normalizeCardSlots(

@@ -88,9 +88,10 @@ export function VariantsPage() {
           Evolutions and heroes
         </h1>
         <p className="mt-2 max-w-2xl text-sm leading-6 text-cream-400">
-          Every form starts on. Turn off the ones you do not own. A dimmed tab means that form
-          stays off when the card is added to an Evo, Hero, or Wild slot. This list is kept if
-          you turn the setting off.
+          Every form starts on, apart from forms added in later updates (see Settings). Turn off
+          the ones you do not own. A grayed-out card with a dimmed tab means that form stays off
+          when the card is added to an Evo, Hero, or Wild slot. This list is kept if you turn the
+          setting off.
         </p>
       </header>
 
@@ -203,6 +204,7 @@ export function VariantsPage() {
                 size="sm"
                 evoOff={variantTabOff(settings, card.id, 'evolution', true)}
                 heroOff={variantTabOff(settings, card.id, 'hero', true)}
+                grayed={!owned}
                 pressed={owned}
                 onClick={() => toggleCard(card)}
                 label={`${card.name}, ${owned ? 'owned' : 'not owned'}`}

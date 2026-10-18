@@ -1,6 +1,6 @@
-import { useMemo, useState } from 'react';
+import { useState } from 'react';
 import { Modal } from '../components/Modal.tsx';
-import { Button, IconBack, IconPlus, IconTrash } from '../components/ui.tsx';
+import { Button, IconBack, IconChevron, IconPlus, IconTrash } from '../components/ui.tsx';
 import { navigate } from '../lib/hashRoute.ts';
 import { store, useAppState } from '../useAppState.ts';
 
@@ -11,10 +11,7 @@ export function FoldersPage() {
   const [editingName, setEditingName] = useState('');
   const [pendingDelete, setPendingDelete] = useState<string | null>(null);
 
-  const folders = useMemo(
-    () => state.folders.slice().sort((a, b) => a.name.localeCompare(b.name)),
-    [state.folders],
-  );
+  const folders = state.folders;
 
   function submitNew(): void {
     const name = draft.trim();
@@ -36,7 +33,8 @@ export function FoldersPage() {
         <p className="text-xs font-semibold tracking-[0.22em] text-gold-400 uppercase">Library</p>
         <h1 className="mt-1 text-3xl font-semibold tracking-tight text-cream-50">Folders</h1>
         <p className="mt-2 text-sm leading-6 text-cream-400">
-          Add, rename, or delete folders. Decks inside a deleted folder move to Unfiled.
+          Add, rename, reorder, or delete folders. The order here is the order on your deck list.
+          Decks inside a deleted folder move to Unfiled.
         </p>
       </header>
 
@@ -60,18 +58,51 @@ export function FoldersPage() {
       </form>
 
       <section className="flex flex-col gap-2 rounded-2xl border border-white/8 bg-navy-800/70 p-3">
+        {folders.length > 1 && (
+          <div className="flex justify-end">
+            <Button
+              variant="ghost"
+              className="px-3 py-1.5 text-xs"
+              onClick={() => store.sortFoldersByName()}
+            >
+              Sort A–Z
+            </Button>
+          </div>
+        )}
         {folders.length === 0 && (
           <p className="px-2 py-8 text-center text-sm text-cream-400">
             No folders yet. Add one above, or create one while editing a deck.
           </p>
         )}
-        {folders.map((folder) => {
+        {folders.map((folder, index) => {
           const deckCount = state.decks.filter((deck) => deck.folderId === folder.id).length;
           return (
             <div
               key={folder.id}
               className="flex items-center gap-2 rounded-xl bg-navy-900/70 px-3 py-2"
             >
+              <div className="flex flex-col">
+                <button
+                  type="button"
+                  title="Move up"
+                  aria-label={`Move ${folder.name} up`}
+                  disabled={index === 0}
+                  onClick={() => store.moveFolder(folder.id, index - 1)}
+                  className="rounded-full p-0.5 text-cream-400 hover:bg-white/5 hover:text-cream-50 disabled:pointer-events-none disabled:opacity-25"
+                >
+                  <IconChevron direction="up" />
+                </button>
+                <button
+                  type="button"
+                  title="Move down"
+                  aria-label={`Move ${folder.name} down`}
+                  disabled={index === folders.length - 1}
+                  onClick={() => store.moveFolder(folder.id, index + 1)}
+                  className="rounded-full p-0.5 text-cream-400 hover:bg-white/5 hover:text-cream-50 disabled:pointer-events-none disabled:opacity-25"
+                >
+                  <IconChevron direction="down" />
+                </button>
+              </div>
               {editingId === folder.id ? (
                 <form
                   className="min-w-0 flex-1"

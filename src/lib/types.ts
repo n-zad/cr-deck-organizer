@@ -48,6 +48,11 @@ export type UserSettings = {
   trackOwnedVariants: boolean;
   disabledEvolutionIds: number[];
   disabledHeroIds: number[];
+  /** Whether forms added to the catalog later start owned while tracking is on. */
+  newVariantsOwned: boolean;
+  /** Forms the app has already seen; null until the first catalog snapshot. */
+  knownEvolutionIds: number[] | null;
+  knownHeroIds: number[] | null;
 };
 
 export type TowerTroop = {
@@ -71,6 +76,8 @@ export type Folder = {
   id: string;
   name: string;
   createdAt: string;
+  /** Manual order on the home list. `AppState.folders` is kept sorted by it. */
+  position: number;
 };
 
 export type Deck = {

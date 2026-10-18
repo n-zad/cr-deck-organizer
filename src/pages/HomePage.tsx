@@ -10,14 +10,24 @@ import { sortDecks, type DeckSortKey } from '../lib/sort.ts';
 import { store, useAppState } from '../useAppState.ts';
 
 const DECK_SORTS: Array<{ id: DeckSortKey; label: string }> = [
-  { id: 'updated', label: 'Last edited' },
+  { id: 'updated', label: 'Last modified' },
+  { id: 'created', label: 'Date created' },
   { id: 'name', label: 'A–Z' },
   { id: 'elixir', label: 'Avg elixir' },
 ];
 
+/** Survives leaving for the editor and coming back, but not a reload. */
+let rememberedFilter: FolderFilter = 'all';
+
 export function HomePage() {
   const state = useAppState();
-  const [filter, setFilter] = useState<FolderFilter>('all');
+  const [selectedFilter, setSelectedFilter] = useState<FolderFilter>(rememberedFilter);
+  const filter =
+    selectedFilter === 'all' ||
+    selectedFilter === 'unfiled' ||
+    state.folders.some((folder) => folder.id === selectedFilter)
+      ? selectedFilter
+      : 'all';
   const [query, setQuery] = useState('');
   const [sortKey, setSortKey] = useState<DeckSortKey>('updated');
   const [sortReverse, setSortReverse] = useState(false);
@@ -41,10 +51,22 @@ export function HomePage() {
     return sortDecks(filtered, sortKey, sortReverse, (deck) => cardsFromIds(deck.cardIds));
   }, [filter, query, sortKey, sortReverse, state.decks, state.settings.ignoreFolders]);
 
-  const folders = useMemo(
-    () => state.folders.slice().sort((a, b) => a.name.localeCompare(b.name)),
-    [state.folders],
-  );
+  const folderCounts = useMemo(() => {
+    const counts = new Map<FolderFilter, number>([
+      ['all', state.decks.length],
+      ['unfiled', 0],
+    ]);
+    for (const deck of state.decks) {
+      const key = deck.folderId ?? 'unfiled';
+      counts.set(key, (counts.get(key) ?? 0) + 1);
+    }
+    return counts;
+  }, [state.decks]);
+
+  function selectFilter(next: FolderFilter): void {
+    rememberedFilter = next;
+    setSelectedFilter(next);
+  }
 
   return (
     <div className="mx-auto flex max-w-[100rem] flex-col gap-8 px-4 py-8 sm:px-6 xl:px-50">
@@ -73,9 +95,10 @@ export function HomePage() {
       <div className="flex flex-col gap-6">
         {!state.settings.ignoreFolders && (
           <FolderSidebar
-            folders={folders}
+            folders={state.folders}
+            counts={folderCounts}
             selected={filter}
-            onSelect={setFilter}
+            onSelect={selectFilter}
             onManage={() => navigate('/folders')}
           />
         )}
@@ -124,10 +147,15 @@ export function HomePage() {
               <IconReverse />
               Reverse
             </Chip>
+            <span className="ml-auto text-xs text-cream-400" aria-live="polite">
+              {decks.length === state.decks.length
+                ? `${decks.length} ${decks.length === 1 ? 'deck' : 'decks'}`
+                : `Showing ${decks.length} of ${state.decks.length} ${state.decks.length === 1 ? 'deck' : 'decks'}`}
+            </span>
           </div>
           <DeckGrid
             decks={decks}
-            folders={folders}
+            folders={state.folders}
             hideNames={state.settings.hideDeckNames}
             hideFolders={state.settings.ignoreFolders}
             emptyTitle={query.trim() ? 'No matching decks' : 'No decks here yet'}

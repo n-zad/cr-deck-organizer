@@ -89,6 +89,23 @@ describe('sortDecks', () => {
     ]);
   });
 
+  it('sorts by creation date independently of the last edit', () => {
+    const older = { ...hog, createdAt: '2026-08-01T00:00:00.000Z' };
+    const newer = { ...golem, createdAt: '2026-08-15T00:00:00.000Z' };
+    expect(sortDecks([older, newer], 'created', false, cardsOf).map((deck) => deck.name)).toEqual([
+      'Golem Beatdown',
+      'Hog Cycle',
+    ]);
+    expect(sortDecks([older, newer], 'created', true, cardsOf).map((deck) => deck.name)).toEqual([
+      'Hog Cycle',
+      'Golem Beatdown',
+    ]);
+    expect(sortDecks([older, newer], 'updated', false, cardsOf).map((deck) => deck.name)).toEqual([
+      'Hog Cycle',
+      'Golem Beatdown',
+    ]);
+  });
+
   it('sorts by name and average elixir', () => {
     expect(sortDecks([hog, golem], 'name', false, cardsOf).map((deck) => deck.name)).toEqual([
       'Golem Beatdown',

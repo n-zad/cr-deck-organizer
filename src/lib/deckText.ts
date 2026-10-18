@@ -176,10 +176,12 @@ type SpanMatch = {
   evolution: boolean;
   hero: boolean;
   words: string[];
+  phrase: boolean;
 };
 
 type Step = {
   unmatched: number;
+  phrases: number;
   cards: number;
   next: number;
   match: SpanMatch | null;
@@ -369,6 +371,16 @@ function lookupExact(words: readonly string[]): number | null {
   return cardId ?? null;
 }
 
+/** A multi-word name or alias typed in order, allowing one word to differ by a plural. */
+function isPhrase(words: readonly string[], cardId: number): boolean {
+  if (words.length < 2) return false;
+  if (phraseAlias.get(words.join(' ')) === cardId) return true;
+  return words.some((_, index) => {
+    const next = words.map((word, other) => (other === index ? togglePlural(word) : word));
+    return phraseAlias.get(next.join(' ')) === cardId;
+  });
+}
+
 function togglePlural(word: string): string {
   if (word.endsWith('s') && !word.endsWith('ss')) return word.slice(0, -1);
   return `${word}s`;
@@ -453,6 +465,7 @@ function matchesAt(atoms: Atom[], start: number): SpanMatch[] {
       evolution,
       hero,
       words: [...words],
+      phrase: isPhrase(words, cardId),
     });
   }
   return matches;
@@ -461,6 +474,7 @@ function matchesAt(atoms: Atom[], start: number): SpanMatch[] {
 function literalSpans(atoms: Atom[]): SpanMatch[] {
   const steps: Step[] = Array.from({ length: atoms.length + 1 }, () => ({
     unmatched: 0,
+    phrases: 0,
     cards: 0,
     next: atoms.length,
     match: null,
@@ -471,6 +485,7 @@ function literalSpans(atoms: Atom[]): SpanMatch[] {
     if (!skipped) continue;
     let best: Step = {
       unmatched: skipped.unmatched + 1,
+      phrases: skipped.phrases,
       cards: skipped.cards,
       next: index + 1,
       match: null,
@@ -480,6 +495,7 @@ function literalSpans(atoms: Atom[]): SpanMatch[] {
       if (!rest) continue;
       const candidate: Step = {
         unmatched: rest.unmatched,
+        phrases: rest.phrases + (match.phrase ? 1 : 0),
         cards: rest.cards + 1,
         next: match.end,
         match,
@@ -500,9 +516,13 @@ function literalSpans(atoms: Atom[]): SpanMatch[] {
   return spans;
 }
 
-/** Fewer unmatched words, then more separate cards so a name stays split until a deck would pass 8. */
+/**
+ * Fewer unmatched words, then more names typed in order ("barb barrel"), then more separate
+ * cards so a reordered name ("skeleton giant") stays split until a deck would pass 8.
+ */
 function prefer(candidate: Step, current: Step): boolean {
   if (candidate.unmatched !== current.unmatched) return candidate.unmatched < current.unmatched;
+  if (candidate.phrases !== current.phrases) return candidate.phrases > current.phrases;
   return candidate.cards > current.cards;
 }
 
@@ -541,6 +561,7 @@ function mergePair(left: SpanMatch, right: SpanMatch): SpanMatch | null {
     evolution,
     hero,
     words,
+    phrase: isPhrase(words, cardId),
   };
 }
 
